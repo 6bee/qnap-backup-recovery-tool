@@ -1,7 +1,10 @@
 # QNAP-BACKUP-RECOVERY-TOOL
+Version: 0.1
+Author: christof.senn@gmail.com
+Copyright © Christof Senn 2018
 
 ## Description
-QNAP-BACKUP-RECOVERY-TOOL is a Powershell based application to restore backup records saved by QNAP (Hybrid Backup Sync) from `AWS S3` and `AWS Glacier`.
+QNAP-BACKUP-RECOVERY-TOOL is a Powershell based application to restore backup records saved by *QNAP (Hybrid Backup Sync)* from *AWS S3* and *AWS Glacier*.
 
 
 ## How-to 
