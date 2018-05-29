@@ -1,6 +1,8 @@
 # QNAP-BACKUP-RECOVERY-TOOL
 Version: 0.1
+
 Author: christof.senn@gmail.com
+
 Copyright © Christof Senn 2018
 
 ## Description
@@ -10,10 +12,10 @@ QNAP-BACKUP-RECOVERY-TOOL is a Powershell based application to restore backup re
 ## How-to 
 
 ### Generate Configuration Template
-Run `Generate-AWS-Configuration-Template.cmd`
+Run *Generate-AWS-Configuration-Template.cmd*
 
 ### Restore S3 Bucket
-Save `config.json` configuration file with the following structure and run the configuration with `Restore-S3-Bucket.cmd` for data recovery from S3 to the restore directory:
+Save *config.json* configuration file with the following structure and run the configuration with *Restore-S3-Bucket.cmd* for data recovery from S3 to the restore directory:
 ```
 {
   "AccessKey": "123456",
@@ -32,8 +34,8 @@ Save `config.json` configuration file with the following structure and run the c
 ```
 
 ### Restore Glacier Vault
-Run `GlacierRestore-Run-BackgroundTasks.cmd` to run background processes and monitor progress.
-Save `config.json` configuration file with the following structure and run the configuration with `GlacierRestore-Start-VaultRestore.cmd` to trigger async data recovery from Glacier to the restore directory:
+Run *GlacierRestore-Run-BackgroundTasks.cmd* to run background processes and monitor progress.
+Save *config.json* configuration file with the following structure and run the configuration with *GlacierRestore-Start-VaultRestore.cmd* to trigger async data recovery from Glacier to the restore directory:
 ```
 {
     "AccountId":  "123456789012",
