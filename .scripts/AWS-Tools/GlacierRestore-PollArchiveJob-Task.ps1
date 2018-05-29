@@ -42,8 +42,15 @@ While ($true) {
         If ($job.Completed) {
           If ($job.StatusCode -eq "Succeeded") {
             $nextTaskFile = Join-Path $NextTaskDirectory "download-archive-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
+            If ($job.ArchiveSizeInBytes -ne $config.Size) {
+              "Size for archive file given in vault inventory ($($config.Size) bytes) is different from archive download job description ($($job.ArchiveSizeInBytes) bytes)" | Out-Log -Level Warning | Write-Host
+            }
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
-            $config | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose        
+            $config `
+              | Get-ShallowCopy `
+              | Add-Member Size $job.ArchiveSizeInBytes -PassThru -Verbose:$Verbose `
+              | Add-Member SHA256Hash $job.ArchiveSHA256TreeHash.ToLower() -PassThru -Verbose:$Verbose `
+              | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
     	    } Else {
             Throw "Polling archive job failed (jobid=$($config.JobId)): $job"

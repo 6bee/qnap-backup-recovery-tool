@@ -59,7 +59,7 @@ While ($True) {
           $outfile = $(Copy-Item -LiteralPath $config.SourceFile -Destination $DataDirectory -PassThru -Verbose:$Verbose).FullName
         }
 
-        If (-Not (Test-Path $outfile)) {
+        If (-Not (Test-Path -LiteralPath $outfile)) {
           Throw "Decompression task failed for file '$($config.SourceFile)' (archiveid=$($config.ArchiveId))"
         }
 

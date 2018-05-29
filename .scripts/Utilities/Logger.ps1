@@ -31,7 +31,7 @@ Function Out-Log {
   If ($logfile) {
     try {
       $folder = Split-Path $logfile -Parent
-      If (-Not $(Test-Path $folder)) {
+      If (-Not $(Test-Path -LiteralPath $folder)) {
         New-Item -ItemType Directory -Path $folder | Out-Null
       }
       If (-Not $Logger) {

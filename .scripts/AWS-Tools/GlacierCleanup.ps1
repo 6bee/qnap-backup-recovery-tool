@@ -60,15 +60,15 @@ Function Get-AwsGlacierVaults {
   
     Write-Verbose "Get-AwsGlacierVaultInventory AccountId: $AccountId, Region: $Region, Vault: $VaultName"
   
-    if($WorkingDirectory.Length -eq 0){
+    If ($WorkingDirectory.Length -eq 0){
       $WorkingDirectory = ".working-dir"
     }
   
-    if(![System.IO.Path]::IsPathRooted($WorkingDirectory)){
+    If (![System.IO.Path]::IsPathRooted($WorkingDirectory)){
       $WorkingDirectory = [System.IO.Path]::GetFullPath((Join-Path (pwd) $WorkingDirectory))
     }
   
-    if(-Not (Test-Path $WorkingDirectory)){
+    If (-Not (Test-Path -LiteralPath $WorkingDirectory)){
       New-Item -ItemType directory -Path $WorkingDirectory > $null
     }
   
@@ -89,10 +89,10 @@ Function Get-AwsGlacierVaults {
     Write-Host "Polling inventory"
     Do {
       $jobStatus = Send-AwsCommand glacier describe-job --account-id $AccountId --region $Region --vault-name "$VaultName" --job-id $jobId -JsonResult
-      If(!$jobStatus){
+      If (!$jobStatus){
         Write-Host "Polling failure for job $($job.jobId)"
       }
-      ElseIf($jobStatus.Completed){
+      ElseIf ($jobStatus.Completed){
         If($jobStatus.StatusCode -eq "Succeeded"){
           Write-Host "Polling inventory '$VaultName' succeeded"
           break 
@@ -111,7 +111,7 @@ Function Get-AwsGlacierVaults {
     Write-Host "Downloading inventory"
     $inventoryFilePath = Join-Path $WorkingDirectory "inventory-$jobId.json"
     $result = Send-AwsCommand glacier get-job-output --account-id $AccountId --region $Region --vault-name "$VaultName" --job-id $jobId "$inventoryFilePath" -JsonResult
-    If($result.status -ne 200){
+    If ($result.status -ne 200){
       Write-Host "$status <> 200"
       Throw "Downloading inventory failed: $(ConvertFrom-Json -InputObject $(-join $result))"
     }

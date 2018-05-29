@@ -7,7 +7,7 @@
 #>
 
 # setup
-If (-Not (Test-Path Variable:7z)) {
+If (-Not (Test-Path -LiteralPath Variable:7z)) {
   $OSArchitecture = Get-CimInstance Win32_OperatingSystem | Select-Object -ExpandProperty OSArchitecture
   $7z = Join-Path $Tools "7-Zip\Bin\$OSArchitecture\7za.exe"
 }

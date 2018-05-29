@@ -42,7 +42,10 @@ While ($true) {
           If($job.StatusCode -eq "Succeeded") {
             $nextTaskFile = Join-Path $NextTaskDirectory "download-inventory-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
-            $config | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose        
+            $config `
+              | Get-ShallowCopy `
+              | Add-Member Size $job.InventorySizeInBytes -PassThru -Verbose:$Verbose `
+              | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
           } Else {
               Throw "Polling inventory job failed (jobid=$($config.JobId)): $job"

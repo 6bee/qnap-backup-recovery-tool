@@ -46,9 +46,13 @@ While ($true) {
           -Verbose:$Verbose
 		
         If ($result.status -eq 200) {
-          If (-Not (Test-Path $outfile)) {
+          If (-Not (Test-Path -LiteralPath $outfile)) {
             Throw "Download inventory task failed (jobid=$($config.JobId))"
-          }  
+          }
+          $size = (Get-Item -LiteralPath $outfile).Length
+          If ($size -ne $config.Size) {
+            "Size of downloaded inventory file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
+          }
           If ($NextTaskDirectory) {
             Read-JsonFile $outfile `
               | Select-Object -ExpandProperty ArchiveList `
@@ -64,6 +68,8 @@ While ($true) {
                   | Get-ShallowCopy -ExcludeProperty "JobId" `
                   | Add-Member ArchivePath $_.Description.path -PassThru -Verbose:$Verbose `
                   | Add-Member ArchiveId $_.Archive.ArchiveId -PassThru -Verbose:$Verbose `
+                  | Add-Member Size $_.Archive.Size -PassThru -Verbose:$Verbose `
+                  | Add-Member SHA256Hash $_.Archive.SHA256TreeHash -PassThru -Verbose:$Verbose `
                   | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
                 }
           }

@@ -40,7 +40,7 @@ While ($True) {
           -Key $(ConvertFrom-ProtectedString $config.ProtectedDecryptionPassword) `
           -Verbose:$Verbose
         
-        If (-Not (Test-Path $outfile)) {
+        If (-Not (Test-Path -LiteralPath $outfile)) {
           Throw "Decryption task failed for file '$($config.SourceFile)' (archiveid=$($config.ArchiveId))"
         }
 

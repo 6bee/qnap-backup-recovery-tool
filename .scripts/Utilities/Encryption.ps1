@@ -7,7 +7,7 @@
 #>
 
 # setup
-If (-Not (Test-Path Variable:openssl)) {
+If (-Not (Test-Path -LiteralPath Variable:openssl)) {
   $env:OPENSSL_CONF = Join-Path $Tools "OpenSSL\bin\openssl.cnf"
   $openssl = Join-Path $Tools "OpenSSL\bin\openssl.exe"
 }

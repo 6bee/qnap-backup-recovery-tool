@@ -46,9 +46,17 @@ While ($true) {
           -Verbose:$Verbose
 		
         If ($result.status -eq 200) {
-          If (-Not (Test-Path $outfile)) {
+          If (-Not (Test-Path -LiteralPath $outfile)) {
             Throw "Download archive task failed (jobid=$($config.JobId)) (archiveid=$($config.ArchiveId))"
-          }  
+          }
+          $size = (Get-Item -LiteralPath $outfile).Length
+          If ($size -ne $config.Size) {
+            "Size of downloaded archive file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
+          }
+          $hash = (Get-FileHash -LiteralPath $outfile -Algorithm SHA256).Hash.ToLower()
+          If ($hash -ne $config.SHA256Hash) {
+            "SHA256 hash of downloaded archive file '$outfile' does not match expected hash $($config.SHA256Hash): $hash" | Out-Log -Level Warning | Write-Host
+          }
           If ($NextTaskDirectory) {
             $nextTaskFile = Join-Path $NextTaskDirectory "decrypt-archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length 20)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host

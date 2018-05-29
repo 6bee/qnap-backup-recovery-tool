@@ -76,7 +76,7 @@ Function Read-JsonFile {
     )
     $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
     $Path `
-      | Where-Object { -Not ([string]::IsNullOrEmpty($_) -Or $(Test-Path $_)) } `
+      | Where-Object { -Not ([string]::IsNullOrEmpty($_) -Or $(Test-Path -LiteralPath $_)) } `
       | ForEach-Object { New-Item -ItemType Directory -Path $_ -Verbose:$Verbose | Out-Null }
   }
   
@@ -99,7 +99,7 @@ Function Read-JsonFile {
       [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
       [string[]]$Directory
     )
-    $count = If(Test-Path $Directory) {
+    $count = If (Test-Path -LiteralPath $Directory) {
       $(Get-ChildItem $Directory).Count
     } Else {
       0
