@@ -34,7 +34,7 @@ While ($true) {
         
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
 
-		    $outfile = Join-Path $DataDirectory "inventory-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
+        $outfile = Join-Path $DataDirectory "inventory-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
 
         $result = Send-AwsCommand glacier get-job-output `
           "--account-id=$($config.AccountId)" `
@@ -44,7 +44,7 @@ While ($true) {
           $outfile `
           -JsonResult `
           -Verbose:$Verbose
-		
+    
         If ($result.status -eq 200) {
           If (-Not (Test-Path -LiteralPath $outfile)) {
             Throw "Download inventory task failed (jobid=$($config.JobId))"

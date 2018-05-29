@@ -34,7 +34,7 @@ While ($true) {
         
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
 
-		    $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
+        $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
 
         $result = Send-AwsCommand glacier get-job-output `
           "--account-id=$($config.AccountId)" `
@@ -44,7 +44,7 @@ While ($true) {
           $outfile `
           -JsonResult `
           -Verbose:$Verbose
-		
+    
         If ($result.status -eq 200) {
           If (-Not (Test-Path -LiteralPath $outfile)) {
             Throw "Download archive task failed (jobid=$($config.JobId)) (archiveid=$($config.ArchiveId))"

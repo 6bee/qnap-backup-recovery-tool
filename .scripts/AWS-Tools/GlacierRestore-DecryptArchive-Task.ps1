@@ -32,7 +32,7 @@ While ($True) {
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
         
-		    $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
+        $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
 
         Invoke-DecryptFile `
           -SourceFilePath $config.SourceFile `

@@ -52,7 +52,7 @@ While ($true) {
               | Add-Member SHA256Hash $job.ArchiveSHA256TreeHash.ToLower() -PassThru -Verbose:$Verbose `
               | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
-    	    } Else {
+          } Else {
             Throw "Polling archive job failed (jobid=$($config.JobId)): $job"
           } 
         } ElseIf(-Not $job) {
