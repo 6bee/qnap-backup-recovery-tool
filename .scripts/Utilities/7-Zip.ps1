@@ -42,9 +42,9 @@ Function Invoke-DecompressFile {
   }
 
   $result = & "$7z" "x" "$SourceFilePath" "-o$DestinatonDirectory"
-  Write-Verbose "$result"
+  "$result" | Out-Log | Write-Verbose
 
   $filepath = [System.IO.Path]::Combine($DestinatonDirectory, [System.IO.Path]::GetFileNameWithoutExtension($SourceFilePath))
-  Write-Verbose "Decompressed '$SourceFilePath' -> '$filepath'"
+  "Decompressed '$SourceFilePath' -> '$filepath'" | Out-Log | Write-Verbose
   $PSCmdlet.WriteObject($filepath)
 }
