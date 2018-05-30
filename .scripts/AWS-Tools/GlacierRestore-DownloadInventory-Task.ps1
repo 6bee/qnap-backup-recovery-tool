@@ -36,46 +36,17 @@ While ($true) {
 
         $outfile = Join-Path $DataDirectory "inventory-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
 
-        $result = Send-AwsCommand glacier get-job-output `
-          "--account-id=$($config.AccountId)" `
-          "--region=$($config.Region)" `
-          "--vault-name=$($config.VaultName)" `
-          "--job-id=$($config.JobId)" `
-          $outfile `
-          -JsonResult `
-          -Verbose:$Verbose
-    
-        If ($result.status -eq 200) {
-          If (-Not (Test-Path -LiteralPath $outfile)) {
-            Throw "Download inventory task failed (jobid=$($config.JobId))"
-          }
-          $size = (Get-Item -LiteralPath $outfile).Length
-          If ($size -ne $config.Size) {
-            "Size of downloaded inventory file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
-          }
-          If ($NextTaskDirectory) {
-            Read-JsonFile $outfile `
-              | Select-Object -ExpandProperty ArchiveList `
-              | ForEach-Object { @{Archive=$_; Description=$(ConvertFrom-Json -InputObject $_.ArchiveDescription)} } `
-              | Where-Object { $_.Description.type -eq 'file' } `
-              | Invoke-Script { 
-                "Retieved inventory of vault '$($config.VaultName)' containing $($_.Count) archives" | Out-Log -Level Information | Write-Host
-                } `
-              | ForEach-Object {
-                $nextTaskFile = Join-Path $NextTaskDirectory "request-archive-[obj#$(Get-StringStart -InputString $_.Archive.ArchiveId -Length $env:MaxIdSize)].json"
-                "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
-                $config `
-                  | Get-ShallowCopy -ExcludeProperty "JobId" `
-                  | Add-Member ArchivePath $_.Description.path -PassThru -Verbose:$Verbose `
-                  | Add-Member ArchiveId $_.Archive.ArchiveId -PassThru -Verbose:$Verbose `
-                  | Add-Member Size $_.Archive.Size -PassThru -Verbose:$Verbose `
-                  | Add-Member SHA256Hash $_.Archive.SHA256TreeHash -PassThru -Verbose:$Verbose `
-                  | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
-                }
-          }
-          
-          Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
-        } Else {
+        Try {
+          $result = Get-JobOutput `
+            -AccountId $config.AccountId `
+            -Region $config.Region `
+            -VaultName $config.VaultName `
+            -JobId $config.JobId `
+            -Outfile $outfile `
+            -Size $config.Size `
+            -Verbose:$Verbose
+        } 
+        Catch {
           Try {
             $job = Send-AwsCommand glacier describe-job `
               "--account-id=$($config.AccountId)" `
@@ -87,6 +58,38 @@ While ($true) {
           } Catch { }
           Throw "Downloading inventory failed (job#$($config.JobId)): DownloadResponse: '$result', JobStatus: '$job'"
         }
+          
+        If (-Not (Test-Path -LiteralPath $outfile)) {
+          Throw "Download inventory task failed (jobid=$($config.JobId))"
+        }
+
+        $size = (Get-Item -LiteralPath $outfile).Length
+        If ($size -ne $config.Size) {
+          "Size of downloaded inventory file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
+        }
+        
+        If ($NextTaskDirectory) {
+          Read-JsonFile $outfile `
+            | Select-Object -ExpandProperty ArchiveList `
+            | ForEach-Object { @{Archive=$_; Description=$(ConvertFrom-Json -InputObject $_.ArchiveDescription)} } `
+            | Where-Object { $_.Description.type -eq 'file' } `
+            | Invoke-Script { 
+              "Retieved inventory of vault '$($config.VaultName)' containing $($_.Count) archives" | Out-Log -Level Information | Write-Host
+              } `
+            | ForEach-Object {
+              $nextTaskFile = Join-Path $NextTaskDirectory "request-archive-[obj#$(Get-StringStart -InputString $_.Archive.ArchiveId -Length $env:MaxIdSize)].json"
+              "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
+              $config `
+                | Get-ShallowCopy -ExcludeProperty "JobId" `
+                | Add-Member ArchivePath $_.Description.path -PassThru -Verbose:$Verbose `
+                | Add-Member ArchiveId $_.Archive.ArchiveId -PassThru -Verbose:$Verbose `
+                | Add-Member Size $_.Archive.Size -PassThru -Verbose:$Verbose `
+                | Add-Member SHA256Hash $_.Archive.SHA256TreeHash -PassThru -Verbose:$Verbose `
+                | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
+              }
+        }
+        
+        Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
       }
       Catch {
         Move-Item -LiteralPath $file -Destination $FailureDirectory -Verbose:$Verbose
