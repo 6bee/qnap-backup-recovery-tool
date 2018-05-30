@@ -136,6 +136,14 @@ Function Get-JobOutput {
     0..$n | ForEach-Object {
       Get-Content -LiteralPath "$Outfile.part$_" -Encoding Byte -ReadCount 512 | Add-Content -LiteralPath $Outfile -Encoding Byte 
     }
+
+    $size = (Get-Item -LiteralPath $Outfile).Length
+    If ($size -eq $Size) {
+      "Deleting part 0 to $n of file '$Outfile'" | Out-Log | Write-Verbose
+      0..$n | ForEach-Object {
+        Remove-Item -LiteralPath "$Outfile.part$_"
+      }
+    }
   }
 
   $PSCmdlet.WriteObject($result)
