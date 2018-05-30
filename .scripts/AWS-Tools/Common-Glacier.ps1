@@ -44,3 +44,99 @@ Function Get-AwsGlacierJobs {
   $PSCmdlet.WriteObject($result)
 }
 
+
+
+<# 
+ .Synopsis
+  Get Job Output
+
+ .Description
+  Downloads the result of a job
+
+ .Parameter AccountId
+  AccountId
+
+ .Parameter Region
+  Region
+
+ .Parameter VaultName
+  VaultName
+
+ .Parameter JobId
+  JobId
+
+ .Parameter Outfile
+  Outfile
+
+ .Example
+  Get-JobOutput "123456789012" "us-central-1" "vault_1" "abcdefghijklmopqrstuvwxyz"
+#>
+Function Get-JobOutput {
+  [CmdletBinding()] Param (
+    [string]$AccountId,
+    [string]$Region,
+    [string]$VaultName,
+    [string]$JobId,
+    [string]$Outfile,
+    [int]$Size,
+    [int]$PartSizeMb = 50
+  )
+
+  Write-Verbose "Get-JobOutput AccontId: $AccountId, Region: $Region, Vault: $VaultName, JobId: $JobId, Outfile:$Outfile, PartSizeMb:$PartSizeMb"
+
+  $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
+  $PartSize = $PartSizeMb * 1024 * 1024
+  
+  If ((-Not $Size) -Or ($PartSize -le 0) -Or ($PartSize -ge $Size)) {
+    $result = Send-AwsCommand glacier get-job-output `
+      "--account-id=$($AccountId)" `
+      "--region=$($Region)" `
+      "--vault-name=$($VaultName)" `
+      "--job-id=$($JobId)" `
+      $Outfile `
+      -JsonResult `
+      -Verbose:$Verbose
+      
+    If ($result.status -ne 200) {
+      Throw "Download failed (jobid=$JobId): $result"
+    }
+  } Else {
+    $n = -1
+    Do {
+      $rangeFrom = ++$n * $PartSize
+      $rangeTo = ($rangeFrom + $PartSize) - 1
+      # increase part size if left over less than 5 percent of the part size
+      If (($Size - $rangeTo - 1) -lt ($PartSize * 0.05)) {
+        $rangeTo = $Size-1
+      }
+      
+      $result = Send-AwsCommand glacier get-job-output `
+        "--account-id=$($AccountId)" `
+        "--region=$($Region)" `
+        "--vault-name=$($VaultName)" `
+        "--job-id=$($JobId)" `
+        "--range=bytes=$rangeFrom-$rangeTo" `
+        "$Outfile.part$n" `
+        -JsonResult `
+        -Verbose:$Verbose
+
+      If ($result.status -notin 200, 206 ) {
+        Throw "Download failed for part $n (jobid=$JobId): $result"
+      }
+      If (-Not (Test-Path -LiteralPath "$Outfile.part$n")) {
+        Throw "Download failed for part $n (jobid=$JobId): no output file: $result"
+      }
+    } While ($rangeTo -lt $Size-1)
+
+    If (Test-Path $Outfile) {
+      Remove-Item -LiteralPath $Outfile
+    }
+
+    0..$n | ForEach-Object {
+      Get-Content -LiteralPath "$Outfile.part$_" -Encoding Byte -ReadCount 512 | Add-Content -LiteralPath $Outfile -Encoding Byte 
+    }
+  }
+
+  $PSCmdlet.WriteObject($result)
+}
+

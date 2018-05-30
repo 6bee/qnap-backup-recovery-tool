@@ -36,42 +36,17 @@ While ($true) {
 
         $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
 
-        $result = Send-AwsCommand glacier get-job-output `
-          "--account-id=$($config.AccountId)" `
-          "--region=$($config.Region)" `
-          "--vault-name=$($config.VaultName)" `
-          "--job-id=$($config.JobId)" `
-          $outfile `
-          -JsonResult `
-          -Verbose:$Verbose
-    
-        If ($result.status -eq 200) {
-          If (-Not (Test-Path -LiteralPath $outfile)) {
-            Throw "Download archive task failed (jobid=$($config.JobId)) (archiveid=$($config.ArchiveId))"
-          }
-          $size = (Get-Item -LiteralPath $outfile).Length
-          If ($size -ne $config.Size) {
-            "Size of downloaded archive file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
-          }
-          $hash = (Get-FileHash -LiteralPath $outfile -Algorithm SHA256).Hash.ToLower()
-          If ($hash -ne $config.SHA256Hash) {
-            "SHA256 hash of downloaded archive file '$outfile' does not match expected hash $($config.SHA256Hash): $hash" | Out-Log -Level Warning | Write-Host
-          }
-          If ($NextTaskDirectory) {
-            $nextTaskFile = Join-Path $NextTaskDirectory "decrypt-archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length 20)].json"
-            "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
-            @{
-              ArchiveId = $config.ArchiveId
-              ArchivePath = $config.ArchivePath
-              ProtectedDecryptionPassword = $config.ProtectedDecryptionPassword
-              RestoreDirectory = $config.RestoreDirectory
-              VaultName = $config.VaultName
-              SourceFile = $outfile
-            } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
-          }
-          
-          Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
-        } Else {
+        Try {
+          $result = Get-JobOutput `
+            -AccountId $config.AccountId `
+            -Region $config.Region `
+            -VaultName $config.VaultName `
+            -JobId $config.JobId `
+            -Outfile $outfile `
+            -Size $config.Size `
+            -Verbose:$Verbose
+        } 
+        Catch {
           Try {
             $job = Send-AwsCommand glacier describe-job `
               "--account-id=$($config.AccountId)" `
@@ -83,6 +58,35 @@ While ($true) {
           } Catch { }
           Throw "Downloading archive failed (job#$($config.JobId)): DownloadResponse: '$result', JobStatus: '$job'"
         }
+          
+        If (-Not (Test-Path -LiteralPath $outfile)) {
+          Throw "Download archive task failed (jobid=$($config.JobId)) (archiveid=$($config.ArchiveId))"
+        }
+
+        $size = (Get-Item -LiteralPath $outfile).Length
+        If ($size -ne $config.Size) {
+          "Size of downloaded archive file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
+        }
+
+        $hash = (Get-FileHash -LiteralPath $outfile -Algorithm SHA256).Hash.ToLower()
+        If ($hash -ne $config.SHA256Hash) {
+          "SHA256 hash of downloaded archive file '$outfile' does not match expected hash $($config.SHA256Hash): $hash" | Out-Log -Level Warning | Write-Host
+        }
+        
+        If ($NextTaskDirectory) {
+          $nextTaskFile = Join-Path $NextTaskDirectory "decrypt-archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length 20)].json"
+          "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
+          @{
+            ArchiveId = $config.ArchiveId
+            ArchivePath = $config.ArchivePath
+            ProtectedDecryptionPassword = $config.ProtectedDecryptionPassword
+            RestoreDirectory = $config.RestoreDirectory
+            VaultName = $config.VaultName
+            SourceFile = $outfile
+          } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
+        }
+          
+        Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
       }
       Catch {
         Move-Item -LiteralPath $file -Destination $FailureDirectory -Verbose:$Verbose
