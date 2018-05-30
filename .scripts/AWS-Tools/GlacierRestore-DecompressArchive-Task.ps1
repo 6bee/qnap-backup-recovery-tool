@@ -42,11 +42,7 @@ While ($True) {
             -DestinatonDirectory $DataDirectory `
             -Verbose:$Verbose
 
-          If (-Not (Test-Path -LiteralPath $outfile)) {
-            Throw "Decompressed file '$outfile' not found"
-          }
-
-          $outfile = $(Rename-Item -LiteralPath $outfile -NewName "$([System.IO.Path]::GetFileName($outfile)).dat" -PassThru -Verbose:$Verbose).FullName
+          $outfile = $(Move-Item -LiteralPath $outfile -Destination "$outfile.dat" -Force -PassThru -Verbose:$Verbose).FullName
 
           If ($RemoveSource) {
             Remove-Item -LiteralPath $config.SourceFile -Verbose:$Verbose
