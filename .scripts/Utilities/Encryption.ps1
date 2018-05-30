@@ -41,8 +41,14 @@ Function Invoke-DecryptFile {
     [string]$Key
   )
   $result = & "$openssl" "enc" "-d" "-aes-256-cbc" "-k" $Key "-in" $SourceFilePath "-out" $DestinatonFilePath
-  Write-Verbose "$result"
-  Write-Verbose "Decrypted '$SourceFilePath' -> '$DestinatonFilePath'"
+  "$result" | Out-Log | Write-Verbose
+
+  $outsize = (Get-Item -LiteralPath $DestinatonFilePath).Length
+  If ($outsize -eq 0) {
+    Throw "Decryption failed for file '$SourceFilePath'"
+  }
+
+  "Decrypted '$SourceFilePath' -> '$DestinatonFilePath'" | Out-Log | Write-Verbose
 }
   
 
