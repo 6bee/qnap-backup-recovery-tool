@@ -28,7 +28,7 @@ While ($true) {
   Try {
     $files = Get-ChildItem $PendingDirectory -Filter $pattern
     If ($files.Count -gt 0) {
-      $file = $(Move-Item -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -PassThru -Verbose:$Verbose).FullName
+      $file = $(Move-Item -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
         
@@ -67,7 +67,7 @@ While ($true) {
         If ($size -ne $config.Size) {
           "Size of downloaded inventory file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
         }
-        
+
         If ($NextTaskDirectory) {
           Read-JsonFile $outfile `
             | Select-Object -ExpandProperty ArchiveList `
@@ -89,10 +89,10 @@ While ($true) {
               }
         }
         
-        Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
+        Move-Item -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {
-        Move-Item -LiteralPath $file -Destination $FailureDirectory -Verbose:$Verbose
+        Move-Item -LiteralPath $file -Destination $FailureDirectory -Force -Verbose:$Verbose
         Throw $_.Exception
       }
     } Else {

@@ -28,7 +28,7 @@ While ($true) {
   Try {
     $files = Get-ChildItem $PendingDirectory -Filter $pattern
     If ($files.Count -gt 0) {
-      $file = $(Move-Item -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -PassThru -Verbose:$Verbose).FullName
+      $file = $(Move-Item -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
         
@@ -86,10 +86,10 @@ While ($true) {
           } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
           
-        Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
+        Move-Item -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {
-        Move-Item -LiteralPath $file -Destination $FailureDirectory -Verbose:$Verbose
+        Move-Item -LiteralPath $file -Destination $FailureDirectory -Force -Verbose:$Verbose
         Throw $_.Exception
       }
     } Else {

@@ -23,7 +23,7 @@ $pattern = "poll-archive-job-*.json"
 
 While ($true) {
   Try {
-    Get-ChildItem $PendingDirectory -Filter $pattern | Move-Item -Destination $ProcessingDirectory
+    Get-ChildItem $PendingDirectory -Filter $pattern | Move-Item -Destination $ProcessingDirectory -Force
 
     Get-ChildItem $ProcessingDirectory -Filter $pattern | ForEach-Object {
       $file = $_.FullName
@@ -51,7 +51,7 @@ While ($true) {
               | Add-Member Size $job.ArchiveSizeInBytes -PassThru -Verbose:$Verbose `
               | Add-Member SHA256Hash $job.ArchiveSHA256TreeHash.ToLower() -PassThru -Verbose:$Verbose `
               | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
-            Move-Item -LiteralPath $file -Destination $SucceessDirectory -Verbose:$Verbose
+            Move-Item -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
           } Else {
             Throw "Polling archive job failed (jobid=$($config.JobId)): $job"
           } 
