@@ -41,15 +41,20 @@ While ($true) {
     
         If ($job.Completed) {
           If ($job.StatusCode -eq "Succeeded") {
-            $nextTaskFile = Join-Path $NextTaskDirectory "download-archive-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
-            If ($job.ArchiveSizeInBytes -ne $config.Size) {
-              "Size for archive file given in vault inventory ($($config.Size) bytes) is different from archive download job description ($($job.ArchiveSizeInBytes) bytes)" | Out-Log -Level Warning | Write-Host
+            $size = $job.ArchiveSizeInBytes
+            If ($size -ne $config.Size) {
+              "Size for archive file given in vault inventory ($($config.Size) bytes) is different from archive download job description ($size bytes)" | Out-Log -Level Warning | Write-Host
             }
+            $hash = $job.ArchiveSHA256TreeHash.ToLower()
+            If ($hash -ne $config.SHA256Hash) {
+              "SHA256 hash for archive file given in vault inventory ($($config.SHA256Hash)) is different from archive download job description ($hash)" | Out-Log -Level Warning | Write-Host
+            }
+            $nextTaskFile = Join-Path $NextTaskDirectory "download-archive-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
             $config `
-              | Get-ShallowCopy `
-              | Add-Member Size $job.ArchiveSizeInBytes -PassThru -Verbose:$Verbose `
-              | Add-Member SHA256Hash $job.ArchiveSHA256TreeHash.ToLower() -PassThru -Verbose:$Verbose `
+              | Get-ShallowCopy -ExcludeProperty Size, SHA256Hash `
+              | Add-Member Size $size -PassThru -Verbose:$Verbose `
+              | Add-Member SHA256Hash $hash -PassThru -Verbose:$Verbose `
               | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-Item -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
           } Else {
