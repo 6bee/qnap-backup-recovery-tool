@@ -71,7 +71,7 @@ Function Start-AwsGlacierRestoreBackgroundTasks {
 "@)
   
 Try {
-  "Starting-up backgroud processes" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks" -Level Information
+  "Starting-up background processes" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks" -Level Information
   "PWD: $pwd" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks"
     
   Start-Job `
