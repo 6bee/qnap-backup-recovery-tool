@@ -45,6 +45,13 @@ Function Invoke-DecompressFile {
   "$result" | Out-Log | Write-Verbose
 
   $filepath = [System.IO.Path]::Combine($DestinatonDirectory, [System.IO.Path]::GetFileNameWithoutExtension($SourceFilePath))
+  
+  If (-Not (Test-Path -LiteralPath $filepath)) {
+    $message = "Decompression failed for '$SourceFilePath'"
+    $message | Out-Log | Write-Verbose
+    Throw $message
+  }
+
   "Decompressed '$SourceFilePath' -> '$filepath'" | Out-Log | Write-Verbose
   $PSCmdlet.WriteObject($filepath)
 }

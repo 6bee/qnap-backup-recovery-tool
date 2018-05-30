@@ -45,7 +45,9 @@ Function Invoke-DecryptFile {
 
   $outsize = (Get-Item -LiteralPath $DestinatonFilePath).Length
   If ($outsize -eq 0) {
-    Throw "Decryption failed for file '$SourceFilePath'"
+    $message = "Decryption failed for file '$SourceFilePath'"
+    $message | Out-Log | Write-Verbose
+    Throw $message
   }
 
   "Decrypted '$SourceFilePath' -> '$DestinatonFilePath'" | Out-Log | Write-Verbose
