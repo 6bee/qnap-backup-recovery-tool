@@ -30,6 +30,11 @@ Function Start-AwsGlacierRestoreBackgroundTasks {
   $GlacierDownloadInventoryProcessing = Join-Path $GlacierDownloadInventory $env:processing
   $GlacierDownloadInventorySuccess = Join-Path $GlacierDownloadInventory $env:success
   $GlacierDownloadInventoryFailure = Join-Path $GlacierDownloadInventory $env:failure
+
+  $GlacierGenerateArchiveRequestsPending = Join-Path $GlacierGenerateArchiveRequests $env:pending
+  $GlacierGenerateArchiveRequestsProcessing = Join-Path $GlacierGenerateArchiveRequests $env:processing
+  $GlacierGenerateArchiveRequestsSuccess = Join-Path $GlacierGenerateArchiveRequests $env:success
+  $GlacierGenerateArchiveRequestsFailure = Join-Path $GlacierGenerateArchiveRequests $env:failure
   
   $GlacierRequestArchivePending = Join-Path $GlacierRequestArchive $env:pending
   $GlacierRequestArchiveProcessing = Join-Path $GlacierRequestArchive $env:processing
@@ -86,12 +91,18 @@ Try {
       -Name "Download-Inventory #$_" `
       -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-DownloadInventory-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierDownloadInventory, $GlacierRequestArchive)
+      -ArgumentList @($GlacierDownloadInventory, $GlacierGenerateArchiveRequests)
     }
-    
+
     Start-Job `
-    -Name "Request-Archive" `
-    -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-RequestArchive-Task.ps1") `
+      -Name "Generate-Archive-Requests" `
+      -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-GenerateArchiveRequests-Task.ps1") `
+      -InitializationScript $init `
+      -ArgumentList @($GlacierGenerateArchiveRequests, $GlacierRequestArchive) 
+
+    Start-Job `
+      -Name "Request-Archive" `
+      -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-RequestArchive-Task.ps1") `
       -InitializationScript $init `
       -ArgumentList @($GlacierRequestArchive, $GlacierPollArchiveJob) 
     
@@ -154,6 +165,13 @@ Try {
           Failed     = $(Get-ChildItemCount $GlacierDownloadInventoryFailure) }
         
         New-Object -TypeName PSObject -Property @{ 
+          Task       = "Generate-Archive-Requests"
+          Pending    = $(Get-ChildItemCount $GlacierGenerateArchiveRequestsPending)
+          InProgress = $(Get-ChildItemCount $GlacierGenerateArchiveRequestsProcessing)
+          Succeeded  = $(Get-ChildItemCount $GlacierGenerateArchiveRequestsSuccess)
+          Failed     = $(Get-ChildItemCount $GlacierGenerateArchiveRequestsFailure) }
+        
+        New-Object -TypeName PSObject -Property @{ 
           Task       = "Request-Archive"
           Pending    = $(Get-ChildItemCount $GlacierRequestArchivePending)
           InProgress = $(Get-ChildItemCount $GlacierRequestArchiveProcessing)
@@ -187,7 +205,7 @@ Try {
           InProgress = $(Get-ChildItemCount $GlacierDecompressArchiveProcessing)
           Succeeded  = $(Get-ChildItemCount $GlacierDecompressArchiveSuccess)
           Failed     = $(Get-ChildItemCount $GlacierDecompressArchiveFailure) }
-         
+        
         New-Object -TypeName PSObject -Property @{ 
           Task       = "Restore-Archive"
           Pending    = $(Get-ChildItemCount $GlacierRestoreArchivePending)

@@ -58,7 +58,7 @@ While ($true) {
           } Catch { }
           Throw "Downloading inventory failed (job#$($config.JobId)): DownloadResponse: '$result', JobStatus: '$job'"
         }
-          
+
         If (-Not (Test-Path -LiteralPath $outfile)) {
           Throw "Download inventory task failed (jobid=$($config.JobId))"
         }
@@ -69,26 +69,14 @@ While ($true) {
         }
 
         If ($NextTaskDirectory) {
-          Read-JsonFile $outfile `
-            | Select-Object -ExpandProperty ArchiveList `
-            | ForEach-Object { @{Archive=$_; Description=$(ConvertFrom-Json -InputObject $_.ArchiveDescription)} } `
-            | Where-Object { $_.Description.type -eq 'file' } `
-            | Invoke-Script { 
-              "Retieved inventory of vault '$($config.VaultName)' containing $($_.Count) archives" | Out-Log -Level Information | Write-Host
-              } `
-            | ForEach-Object {
-              $nextTaskFile = Join-Path $NextTaskDirectory "request-archive-[obj#$(Get-StringStart -InputString $_.Archive.ArchiveId -Length $env:MaxIdSize)].json"
-              "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
-              $config `
-                | Get-ShallowCopy -ExcludeProperty "JobId" `
-                | Add-Member ArchivePath $_.Description.path -PassThru -Verbose:$Verbose `
-                | Add-Member ArchiveId $_.Archive.ArchiveId -PassThru -Verbose:$Verbose `
-                | Add-Member Size $_.Archive.Size -PassThru -Verbose:$Verbose `
-                | Add-Member SHA256Hash $_.Archive.SHA256TreeHash -PassThru -Verbose:$Verbose `
-                | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
-              }
+          $nextTaskFile = Join-Path $NextTaskDirectory "generate-archive-requests-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
+          "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
+          $config `
+            | Get-ShallowCopy -ExcludeProperty "Size" `
+            | Add-Member InventoryFile $outfile -PassThru -Verbose:$Verbose `
+            | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
-        
+
         Move-Item -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {
@@ -101,6 +89,6 @@ While ($true) {
   }
   Catch {
     "Exception: '$($_.Exception.Message)'" | Out-Log -Level Error | Write-Error
-    Start-Sleep -Seconds 60 -Verbose:$Verbose
+    Start-Sleep -Seconds 10 -Verbose:$Verbose
   }
 }
