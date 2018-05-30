@@ -91,6 +91,6 @@ While ($True) {
   }
   Catch {
     "Exception: '$($_.Exception.Message)'" | Out-Log -Level Error | Write-Error
-    Start-Sleep -Seconds 60 -Verbose:$Verbose
+    Start-Sleep -Seconds 10 -Verbose:$Verbose
   }
 }

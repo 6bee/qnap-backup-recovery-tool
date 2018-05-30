@@ -66,6 +66,6 @@ While ($true) {
     $ErrorMessage = $_.Exception.Message
     $FailedItem = $_.Exception.ItemName
     "Exception: '$ErrorMessage' ($FailedItem)" | Out-Log -Level Error | Write-Error
-    Start-Sleep -Seconds 60 -Verbose:$Verbose
+    Start-Sleep -Seconds 10 -Verbose:$Verbose
   }
 }
