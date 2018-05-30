@@ -52,7 +52,7 @@ While ($True) {
             Remove-Item -LiteralPath $config.SourceFile -Verbose:$Verbose
           }
         } ElseIf ($RemoveSource) {
-          "Move archive $($config.ArchivePath)" | OUt-Log | Write-Host 
+          "Move archive $($config.ArchivePath)" | Out-Log | Write-Host 
           $outfile = $(Move-Item -LiteralPath $config.SourceFile -Destination $DataDirectory -PassThru -Verbose:$Verbose).FullName
         } Else {
           "Copy archive $($config.ArchivePath)" | Out-Log | Write-Host
