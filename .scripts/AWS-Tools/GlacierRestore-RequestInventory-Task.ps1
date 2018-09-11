@@ -45,7 +45,7 @@ While ($true) {
           $nextTaskFile = Join-Path $NextTaskDirectory "poll-inventory-job-[job#$(Get-StringStart -InputString $job.jobId -Length $env:MaxIdSize)].json"
           "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
           $config `
-            | Get-ShallowCopy -ExcludeProperty "Vaults" `
+            | Get-ShallowCopy -ExcludeProperty Vaults `
             | Add-Member VaultName $_.VaultName -PassThru -Verbose:$Verbose `
             | Add-Member JobId $job.jobId -PassThru -Verbose:$Verbose `
             | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose

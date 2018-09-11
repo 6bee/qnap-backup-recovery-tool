@@ -48,7 +48,7 @@ While ($true) {
               | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-Item -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
           } Else {
-              Throw "Polling inventory job failed (jobid=$($config.JobId)): $job"
+            Throw "Polling inventory job failed (jobid=$($config.JobId)): $job"
           }
         } ElseIf(-Not $job) {
           "Polling inventory job returned no result (jobid=$($config.JobId))" | Out-Log -Level Warning | Write-Warning

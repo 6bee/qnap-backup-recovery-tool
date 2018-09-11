@@ -65,14 +65,14 @@ While ($true) {
 
         $size = (Get-Item -LiteralPath $outfile).Length
         If ($size -ne $config.Size) {
-          "Size of downloaded inventory file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
+          "Size of downloaded inventory file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Warning
         }
 
         If ($NextTaskDirectory) {
           $nextTaskFile = Join-Path $NextTaskDirectory "generate-archive-requests-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
           "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
           $config `
-            | Get-ShallowCopy -ExcludeProperty "Size" `
+            | Get-ShallowCopy -ExcludeProperty Size `
             | Add-Member InventoryFile $outfile -PassThru -Verbose:$Verbose `
             | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }

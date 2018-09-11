@@ -42,7 +42,7 @@ While ($true) {
             $nextTaskFile = Join-Path $NextTaskDirectory "request-archive-[obj#$(Get-StringStart -InputString $_.Archive.ArchiveId -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
             $config `
-              | Get-ShallowCopy -ExcludeProperty @("JobId", "InventoryFile") `
+              | Get-ShallowCopy -ExcludeProperty JobId, InventoryFile `
               | Add-Member ArchivePath $_.Description.path -PassThru -Verbose:$Verbose `
               | Add-Member ArchiveId $_.Archive.ArchiveId -PassThru -Verbose:$Verbose `
               | Add-Member Size $_.Archive.Size -PassThru -Verbose:$Verbose `

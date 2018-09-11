@@ -65,12 +65,12 @@ While ($true) {
 
         $size = (Get-Item -LiteralPath $outfile).Length
         If ($size -ne $config.Size) {
-          "Size of downloaded archive file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Host
+          "Size of downloaded archive file '$outfile' does not match expected file size of $($config.Size) bytes: $size" | Out-Log -Level Warning | Write-Warning
         }
 
         $hash = (Get-FileHash -LiteralPath $outfile -Algorithm SHA256).Hash.ToLower()
         If ($hash -ne $config.SHA256Hash) {
-          "SHA256 hash of downloaded archive file '$outfile' does not match expected hash $($config.SHA256Hash): $hash" | Out-Log -Level Warning | Write-Host
+          "SHA256 hash of downloaded archive file '$outfile' does not match expected hash $($config.SHA256Hash): $hash" | Out-Log -Level Warning | Write-Warning
         }
         
         If ($NextTaskDirectory) {

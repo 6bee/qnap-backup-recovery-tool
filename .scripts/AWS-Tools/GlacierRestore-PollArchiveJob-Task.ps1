@@ -43,12 +43,14 @@ While ($true) {
           If ($job.StatusCode -eq "Succeeded") {
             $size = $job.ArchiveSizeInBytes
             If ($size -ne $config.Size) {
-              "Size for archive file given in vault inventory ($($config.Size) bytes) is different from archive download job description ($size bytes)" | Out-Log -Level Warning | Write-Host
+              "Size for archive file given in vault inventory ($($config.Size) bytes) is different from archive download job description ($size bytes)" | Out-Log -Level Warning | Write-Warning
             }
+            
             $hash = $job.ArchiveSHA256TreeHash.ToLower()
             If ($hash -ne $config.SHA256Hash) {
-              "SHA256 hash for archive file given in vault inventory ($($config.SHA256Hash)) is different from archive download job description ($hash)" | Out-Log -Level Warning | Write-Host
+              "SHA256 hash for archive file given in vault inventory ($($config.SHA256Hash)) is different from archive download job description ($hash)" | Out-Log -Level Warning | Write-Warning
             }
+            
             $nextTaskFile = Join-Path $NextTaskDirectory "download-archive-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
             $config `
