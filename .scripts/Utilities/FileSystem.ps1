@@ -165,13 +165,11 @@ Function Move-ItemToDirectory {
     [switch]$PassThru,
     [switch]$Force
   )    
-  $IsVerbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
-  $IsPassThru = $PSCmdlet.MyInvocation.BoundParameters["PassThru"].IsPresent
-  $IsForce = $PSCmdlet.MyInvocation.BoundParameters["Force"].IsPresent
+  $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
   New-DirectoryIfNotExists $Destination
   If (-Not [string]::IsNullOrEmpty($LiteralPath) -And $(Test-Path -Path $LiteralPath)) {
-    Move-Item -LiteralPath $LiteralPath -Destination $Destination -Force:$IsForce -PassThru:$IsPassThru -Verbose:$IsVerbose
-  } ElseIf ($IsVerbose) {
+    Move-Item -LiteralPath $LiteralPath -Destination $Destination -Force:$Force -PassThru:$PassThru -Verbose:$Verbose
+  } ElseIf ($Verbose) {
     Write-Verbose "Cannot 'Move-ItemToDirectory' because parameter 'LiterlaPath' is an empty string" -Verbose
   }
 }
