@@ -31,7 +31,7 @@ While ($True) {
   Try {
     $files = Get-ChildItem $PendingDirectory -Filter $pattern
     If($files.Count -gt 0) {
-      $file = $(Move-Item -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
+      $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
         
@@ -49,7 +49,7 @@ While ($True) {
           }
         } ElseIf ($RemoveSource) {
           "Move archive $($config.ArchivePath)" | Out-Log | Write-Host 
-          $outfile = $(Move-Item -LiteralPath $config.SourceFile -Destination $DataDirectory -PassThru -Verbose:$Verbose).FullName
+          $outfile = $(Move-ItemToDirectory -LiteralPath $config.SourceFile -Destination $DataDirectory -PassThru -Verbose:$Verbose).FullName
         } Else {
           "Copy archive $($config.ArchivePath)" | Out-Log | Write-Host
           $outfile = $(Copy-Item -LiteralPath $config.SourceFile -Destination $DataDirectory -PassThru -Verbose:$Verbose).FullName
@@ -75,10 +75,10 @@ While ($True) {
           } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
           
-        Move-Item -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
+        Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {
-        Move-Item -LiteralPath $file -Destination $FailureDirectory -Force -Verbose:$Verbose
+        Move-ItemToDirectory -LiteralPath $file -Destination $FailureDirectory -Force -Verbose:$Verbose
         Throw $_.Exception
       }
     } Else {
