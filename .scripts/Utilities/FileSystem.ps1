@@ -159,17 +159,21 @@ Function Remove-Directory {
 #>
 Function Move-ItemToDirectory {
   [CmdletBinding()] Param (
-    [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-    [string]$LiteralPath,
+    [Alias('PSPath')]
+    [Parameter(Mandatory=$true, ValueFromPipeline=$true, ValueFromPipelineByPropertyName=$True)]
+    [string[]]$LiteralPath,
+    [Parameter(Mandatory=$true, ValueFromPipelineByPropertyName=$True)]
     [string]$Destination,
+    [Parameter(Mandatory=$false)]
     [switch]$PassThru,
+    [Parameter(Mandatory=$false)]
     [switch]$Force
-  )    
+  )
   $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
-  New-DirectoryIfNotExists $Destination
-  If (-Not [string]::IsNullOrEmpty($LiteralPath) -And $(Test-Path -Path $LiteralPath)) {
+  If ($LiteralPath) {
+    New-DirectoryIfNotExists $Destination
     Move-Item -LiteralPath $LiteralPath -Destination $Destination -Force:$Force -PassThru:$PassThru -Verbose:$Verbose
   } ElseIf ($Verbose) {
-    Write-Verbose "Cannot 'Move-ItemToDirectory' because parameter 'LiterlaPath' is an empty string" -Verbose
+    Out-Log "Cannot 'Move-ItemToDirectory' because argument 'LiterlaPath' is null" | Write-Verbose
   }
 }

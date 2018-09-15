@@ -3,10 +3,12 @@
 # GlacierRestore-Run-BackgroundTasks.ps1
 # 
 [CmdletBinding()]
-Param ()
+Param (
+    [switch]$AutoRequestArchives
+)
 
 $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
 Import-Module (Join-Path $PSScriptRoot "Utilities") -Force -Verbose:$Verbose
 Import-Module (Join-Path $PSScriptRoot "AWS-Tools") -Force -Verbose:$Verbose
 
-Start-AwsGlacierRestoreBackgroundTasks -Verbose:$Verbose
+Start-AwsGlacierRestoreBackgroundTasks -AutoRequestArchives:$AutoRequestArchives -Verbose:$Verbose

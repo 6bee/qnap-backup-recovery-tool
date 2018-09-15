@@ -12,7 +12,9 @@
 #>
 Function Start-AwsGlacierRestoreBackgroundTasks {
   [CmdletBinding()]
-  Param ()
+  Param (
+    [switch]$AutoRequestArchives
+  )
   
   #$Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
   
@@ -70,73 +72,75 @@ Function Start-AwsGlacierRestoreBackgroundTasks {
     Set-Location '$pwd'
 "@)
   
-Try {
-  "Starting-up background processes" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks" -Level Information
-  "PWD: $pwd" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks"
-    
-  Start-Job `
-    -Name "Request-Inventory" `
-    -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-RequestInventory-Task.ps1") `
+  Try {
+    "Starting-up background processes" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks" -Level Information
+    "PWD: $pwd" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks"
+      
+    Start-Job `
+      -Name "Request-Inventory" `
+      -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-RequestInventory-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierRequestInventory, $GlacierPollInventoryJob ) 
-    
+      -ArgumentList @($GlacierRequestInventory, $GlacierPollInventoryJob)
+      
     Start-Job `
       -Name "Poll-Inventory-Job" `
       -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-PollInventoryJob-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierPollInventoryJob, $GlacierDownloadInventory) 
+      -ArgumentList @($GlacierPollInventoryJob, $GlacierDownloadInventory)
     
     1..$NumberOfInventoryDownloadJobs | ForEach-Object {
-    Start-Job `
-      -Name "Download-Inventory #$_" `
-      -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-DownloadInventory-Task.ps1") `
-      -InitializationScript $init `
-      -ArgumentList @($GlacierDownloadInventory, $GlacierGenerateArchiveRequests)
+      Start-Job `
+        -Name "Download-Inventory #$_" `
+        -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-DownloadInventory-Task.ps1") `
+        -InitializationScript $init `
+        -ArgumentList @($GlacierDownloadInventory, $GlacierGenerateArchiveRequests)
     }
 
     Start-Job `
       -Name "Generate-Archive-Requests" `
       -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-GenerateArchiveRequests-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierGenerateArchiveRequests, $GlacierRequestArchive) 
+      -ArgumentList @($GlacierGenerateArchiveRequests, $GlacierRequestArchive)
 
-    Start-Job `
-      -Name "Request-Archive" `
-      -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-RequestArchive-Task.ps1") `
-      -InitializationScript $init `
-      -ArgumentList @($GlacierRequestArchive, $GlacierPollArchiveJob) 
-    
+    If ($AutoRequestArchives) {
+      Start-Job `
+        -Name "Request-Archive" `
+        -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-RequestArchive-Task.ps1") `
+        -InitializationScript $init `
+        -ArgumentList @($GlacierRequestArchive, $GlacierPollArchiveJob)
+    }
+
     Start-Job `
       -Name "Poll-Archive-Job" `
       -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-PollArchiveJob-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierPollArchiveJob, $GlacierDownloadArchive) 
+      -ArgumentList @($GlacierPollArchiveJob, $GlacierDownloadArchive)
     
     1..$NumberOfArchiveDownloadJobs | ForEach-Object {
-    Start-Job `
-      -Name "Download-Archive #$_" `
-      -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-DownloadArchive-Task.ps1") `
-      -InitializationScript $init `
-      -ArgumentList @($GlacierDownloadArchive, $GlacierDecryptArchive)
+      Start-Job `
+        -Name "Download-Archive #$_" `
+        -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-DownloadArchive-Task.ps1") `
+        -InitializationScript $init `
+        -ArgumentList @($GlacierDownloadArchive, $GlacierDecryptArchive)
     }
     
     Start-Job `
       -Name "Decrypt-Archive" `
       -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-DecryptArchive-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierDecryptArchive, $GlacierDecompressArchive) 
+      -ArgumentList @($GlacierDecryptArchive, $GlacierDecompressArchive)
     
     Start-Job `
       -Name "Decompress-Archive" `
       -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-DecompressArchive-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierDecompressArchive, $GlacierRestoreArchive) 
+      -ArgumentList @($GlacierDecompressArchive, $GlacierRestoreArchive)
     
     Start-Job `
       -Name "Restore-Archive" `
       -FilePath $(Join-Path $PSScriptRoot "GlacierRestore-RestoreArchive-Task.ps1") `
       -InitializationScript $init `
-      -ArgumentList @($GlacierRestoreArchive) 
+      -ArgumentList @($GlacierRestoreArchive)
   
 
     "Begin monitoring task folders" | Out-Log -Logger "AwsGlacierRestoreBackgroundTasks" -Level Information
@@ -213,7 +217,7 @@ Try {
           Succeeded  = $(Get-ChildItemCount $GlacierRestoreArchiveSuccess)
           Failed     = $(Get-ChildItemCount $GlacierRestoreArchiveFailure) }
       )
-  
+      
       Clear-Host  
       Write-Host
       Write-Host "Running QNAP-AWS-Backup-Recovery processes."
@@ -221,8 +225,10 @@ Try {
       Write-Host  
       Write-Host "$(Get-Date)"
       Write-Host "Use Start-Glacier-Vault-Restore.ps1 to trigger restore of Glacier Vault."
+      if (-Not $AutoRequestArchives) {
+        Write-Host "To start download request for archives set parameter AutoRequestArchives or move files manually from '$env:pending' to '$env:processing' in '$GlacierRequestArchive'"
+      }
       Write-Host "Enter Ctrl+C to terminate"
-      Write-Host    
       Start-Sleep -Milliseconds 2000
     }
   }

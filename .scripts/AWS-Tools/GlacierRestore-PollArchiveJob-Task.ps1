@@ -23,7 +23,7 @@ $pattern = "poll-archive-job-*.json"
 
 While ($true) {
   Try {
-    Get-ChildItem $PendingDirectory -Filter $pattern | Move-ItemToDirectory -Destination $ProcessingDirectory -Force
+    Get-ChildItem $PendingDirectory -Filter $pattern | Move-ItemToDirectory -Destination $ProcessingDirectory -Force -Verbose:$Verbose
 
     Get-ChildItem $ProcessingDirectory -Filter $pattern | ForEach-Object {
       $file = $_.FullName
