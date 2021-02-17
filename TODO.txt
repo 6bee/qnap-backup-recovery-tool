@@ -3,6 +3,7 @@
   - use range parameter to download smaller parts 
   - verify each part (size and checksum)
   - add retry logic
+
 # Feature: S3 Versioning Support
   allow restore objects from S3 at a given time using `aws s3api list-object-versions` and `aws s3api get-object`
   
