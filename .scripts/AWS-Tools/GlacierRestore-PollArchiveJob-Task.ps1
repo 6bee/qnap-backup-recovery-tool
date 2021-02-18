@@ -23,14 +23,16 @@ $pattern = "poll-archive-job-*.json"
 
 While ($true) {
   Try {
-    Get-ChildItem $PendingDirectory -Filter $pattern | Move-ItemToDirectory -Destination $ProcessingDirectory -Force -Verbose:$Verbose
+    Get-ChildItem $PendingDirectory -Filter $pattern | ForEach-Object {
+      Move-ItemToDirectory -LiteralPath $_.FullName -Destination $ProcessingDirectory -Force -Verbose:$Verbose
+    }
 
     Get-ChildItem $ProcessingDirectory -Filter $pattern | ForEach-Object {
       $file = $_.FullName
       Try {
-        $config = Read-JsonFile -Path $file -Verbose:$Verbose        
+        $config = Read-JsonFile -Path $file -Verbose:$Verbose
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
-    
+
         $job = Send-AwsCommand glacier describe-job `
           "--account-id=$($config.AccountId)" `
           "--region=$($config.Region)" `
@@ -38,7 +40,7 @@ While ($true) {
           "--job-id=$($config.JobId)" `
           -JsonResult `
           -Verbose:$Verbose
-    
+
         If ($job.Completed) {
           If ($job.StatusCode -eq "Succeeded") {
             $size = $job.ArchiveSizeInBytes
@@ -50,7 +52,7 @@ While ($true) {
             If ($hash -ne $config.SHA256Hash) {
               "SHA256 hash for archive file given in vault inventory ($($config.SHA256Hash)) is different from archive download job description ($hash)" | Out-Log -Level Warning | Write-Warning
             }
-            
+
             $nextTaskFile = Join-Path $NextTaskDirectory "download-archive-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
             $config `
