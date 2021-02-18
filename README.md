@@ -48,4 +48,44 @@ Data recovery from AWS Glacier requires multiple process to run:
 }
 ```
 
-Note: As long the data remains provisioned for recovery on AWS Glacier, *GlacierRestore-Run-BackgroundTasks.cmd* may be re-launched to resume on data recovery triggered earlier.
+**If anything goes wrong**
+
+As long the data remains provisioned for recovery on AWS Glacier, *GlacierRestore-Run-BackgroundTasks.cmd* may be re-launched to resume on data recovery triggered earlier.
+
+All processing is file based. Each process step takes it's input from the file system and writes it's output, as the next step's input, to the file system too. Each step's input file is moved along a folder structure, representing it's current state: 
+
+1. `pending` contains json requests to be processed.
+2. `processing` contains json requests which are currently being processed.
+3. `success` contains json requests which have completed successfully.
+4. `failure` contains json requests which have been processed unsuccessfully.
+5. `data` contains the process step's results, e.g. downloaded files, decompressed files, etc.
+
+To resume a failed request, the corresponding json file may simply be moved from *failure* directory back to *pending* to be picked-up and processed again.
+
+A log file as well as all json files are stored in *%temp%\qnap-backup-recovery-tool*.
+
+**File Name Recovery**
+Since Glacier does not deal with files but handles binary blobs only, QNAP stores file information in the so called `ArchiveDescription` field which is part of the metadata than can be set for each blob:
+```json
+{
+  "ArchiveId": "abc...",
+  "ArchiveDescription": "{\"path\": \"/sample/1234.pdf\", \"type\": \"file\"}",
+  "CreationDate": "2016-05-01T10:00:59Z",
+  "Size": 8388,
+  "SHA256TreeHash": "5ad1a94..."
+ }
+```
+
+Hence, recovery scripts are extracting file name and path from the *ArchiveDescription*.
+
+However, depending on the application and version used to create the backup, *ArchiveDescription* may be stored in different formats. While the above sample was created using the "Glacier" backup app, "Hybrid Backup Sync (HBS)" apparently sets the *ArchiveDescription* as xml with the file path encoded in *base64*:
+
+```json
+{
+  "ArchiveId": "abc...",
+  "ArchiveDescription": "<m><v>4</v><p>L3NhbXBsZS8xMjM0LnBkZg==</p><lm>20190501T100059Z</lm></m>",
+  "CreationDate": "2019-05-01T10:00:59Z",
+  "Size": 8388,
+  "SHA256TreeHash": "5ad1a94..."
+ }
+```
