@@ -1,5 +1,4 @@
 # QNAP-BACKUP-RECOVERY-TOOL
-Version: 0.1
 
 Author: christof.senn@gmail.com
 

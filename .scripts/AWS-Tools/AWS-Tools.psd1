@@ -13,7 +13,7 @@
     RootModule = 'AWS-Tools.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.1'
+    ModuleVersion = '0.2'
 
     # ID used to uniquely identify this module
     GUID = '4B493A78-113E-4E34-B65F-4708413FA3ED'
