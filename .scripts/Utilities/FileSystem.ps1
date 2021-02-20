@@ -1,6 +1,6 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Read file content into json object
 
@@ -25,7 +25,7 @@ Function Read-JsonFile {
 
 
 
-<# 
+<#
   .Synopsis
   Write object as json file
 
@@ -56,7 +56,7 @@ Function Write-JsonFile {
 
 
 
-<# 
+<#
   .Synopsis
   Ensure existance of direcotry
 
@@ -83,12 +83,12 @@ Function New-DirectoryIfNotExists {
 
 
 
-<# 
+<#
   .Synopsis
   Get child items count
 
   .Description
-  
+
   .Parameter Directory
   Directory
 
@@ -110,7 +110,7 @@ Function Get-ChildItemCount {
 
 
 
-<# 
+<#
   .Synopsis
   Delete directory
 
@@ -135,7 +135,7 @@ Function Remove-Directory {
 
 
 
-<# 
+<#
   .Synopsis
   Move item to directory
 

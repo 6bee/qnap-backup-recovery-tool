@@ -1,12 +1,12 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Create a copy
 
  .Description
   Creates a shallow copy of a PSObject
-  
+
  .Parameter InputObject
   The object to copy
 
@@ -31,13 +31,13 @@ Function Get-ShallowCopy {
 
 
 
-<# 
+<#
  .Synopsis
   Execute and forward
 
  .Description
-  Executes a scriptblock. Input from pipe may be accessed using $_ variable. 
-  
+  Executes a scriptblock. Input from pipe may be accessed using $_ variable.
+
  .Parameter InputObject
   The object
 

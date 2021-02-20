@@ -1,6 +1,6 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Start Restore of AWS Glacier Vault
 
@@ -12,16 +12,16 @@
 #>
 Function Invoke-TriggerAwsGlacierVaultRestore {
   [CmdletBinding()]
-  Param (    
+  Param (
     [Parameter(Mandatory=$true)]
     [object]$Configuration
   )
-  
-  $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent  
+
+  $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
   $env:Logger = "TriggerAwsGlacierVaultRestore"
-  
+
   $GlacierRequestInventoryPending = Join-Path $GlacierRequestInventory $env:pending
-  
+
   New-DirectoryIfNotExists $GlacierRequestInventoryPending -Verbose:$Verbose
 
   $count = $(Get-ChildItem -Path $GlacierRequestInventory -Include "request-inventory-*.json" -Recurse).Count + 1
@@ -31,7 +31,7 @@ Function Invoke-TriggerAwsGlacierVaultRestore {
     | Get-ShallowCopy -ExcludeProperty @("SecretKey", "DecryptionPassword") `
     | Add-Member ProtectedSecretKey $(ConvertTo-ProtectedString $Configuration.SecretKey) -PassThru -Verbose:$Verbose `
     | Add-Member ProtectedDecryptionPassword $(ConvertTo-ProtectedString $Configuration.DecryptionPassword) -PassThru -Verbose:$Verbose `
-    | Invoke-Script { 
+    | Invoke-Script {
       "Restore '$($config.VaultName)' --> Creating Task File: $taskFile" | Out-Log -Level Information | Write-Host
       } `
     | Write-JsonFile -Path $taskFile -Verbose:$Verbose

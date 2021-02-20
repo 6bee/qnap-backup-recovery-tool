@@ -1,6 +1,6 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Restore S3 Bucket to local folder
 
@@ -21,14 +21,14 @@ Function Invoke-AwsS3Restore {
   Write-Verbose "Invoke-AwsS3Restore"
 
   $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
-  
+
   $Tasks = Join-Path $WorkingDirectory "s3"
   $S3Sync = Join-Path $Tasks "sync"
   $S3Decrypt = Join-Path $Tasks "decrypt"
   $S3Decompress = Join-Path $Tasks "decompress"
 
   $ComporessedFileExt = ".qnap.bz2"
-  
+
   If ($(Test-Path $Tasks) -And $(Get-ChildItem -LiteralPath $Tasks -Recurse -Verbose:$Verbose  | Where-Object { -Not $_.PSIsContainer }).Count -gt 0) {
     $title = "Working directory is not empty!"
     $message = "Delete existing files and continue?"
@@ -43,7 +43,7 @@ Function Invoke-AwsS3Restore {
     }
   }
 
-  New-DirectoryIfNotExists $S3Sync $S3Decrypt $S3Decompress $Configuration.RestoreDirectory -Verbose:$Verbose 
+  New-DirectoryIfNotExists $S3Sync $S3Decrypt $S3Decompress $Configuration.RestoreDirectory -Verbose:$Verbose
 
   Set-AwsCredentials $Configuration.AccessKey $Configuration.SecretKey -Verbose:$Verbose
   $configuration.S3Buckets | ForEach-Object {
@@ -55,21 +55,21 @@ Function Invoke-AwsS3Restore {
 
   Get-ChildItem -LiteralPath $S3Sync -Recurse -Verbose:$Verbose `
     | Where-Object { -Not $_.PSIsContainer } `
-    | ForEach-Object { 
+    | ForEach-Object {
       $destinationFile = Join-Path $S3Decrypt $_.FullName.Substring($S3Sync.Length)
-      New-DirectoryIfNotExists $(Split-Path -Parent $destinationFile) -Verbose:$Verbose 
+      New-DirectoryIfNotExists $(Split-Path -Parent $destinationFile) -Verbose:$Verbose
       Invoke-DecryptFile `
         -SourceFilePath $_.FullName `
         -DestinatonFilePath $destinationFile `
         -Key $(ConvertFrom-ProtectedString $configuration.ProtectedDecryptionPassword) `
-        -Verbose:$Verbose 
+        -Verbose:$Verbose
     }
 
   Get-ChildItem -LiteralPath $S3Decrypt -Recurse -Verbose:$Verbose `
     | Where-Object { -Not $_.PSIsContainer } `
     | ForEach-Object {
       $destinationFolder = Split-Path -Parent $(Join-Path $S3Decompress $_.FullName.Substring($S3Decrypt.Length))
-      New-DirectoryIfNotExists $destinationFolder -Verbose:$Verbose 
+      New-DirectoryIfNotExists $destinationFolder -Verbose:$Verbose
       If ($_.Name -like "*$ComporessedFileExt") {
         $outfile = Invoke-DecompressFile -SourceFilePath $_.FullName -DestinatonDirectory $destinationFolder -Verbose:$Verbose
         Rename-Item -LiteralPath $outfile -NewName $($_.Name -Replace "$ComporessedFileExt$", "") -Verbose:$Verbose
@@ -83,7 +83,7 @@ Function Invoke-AwsS3Restore {
 
 
 
-<# 
+<#
  .Synopsis
   Sync S3 Bucket to local folder
 

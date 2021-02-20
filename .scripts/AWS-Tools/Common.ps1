@@ -1,6 +1,6 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Set AWS Credentials
 
@@ -30,7 +30,7 @@ Function Set-AwsCredentials {
 
 
 
-<# 
+<#
  .Synopsis
   Write AWS Account Info template
 
@@ -50,7 +50,7 @@ Function Write-AwsConfigurationTemplate {
 
 
 
-<# 
+<#
 .Synopsis
   Get AWS Account Info template object
 
@@ -95,12 +95,12 @@ Function Get-AwsConfigurationTemplate {
 
 
 
-<# 
+<#
  .Synopsis
   Run AWS Glacier Command
 
  .Description
-  Sends a command to AWS Glacier CLI. 
+  Sends a command to AWS Glacier CLI.
   For more info about AWS Glacier CLI see http://docs.aws.amazon.com/cli/latest/reference/glacier/index.html#cli-aws-glacier'.
 
  .Parameter Arguments

@@ -31,7 +31,7 @@ While ($true) {
       $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
-        
+
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
 
         $outfile = Join-Path $DataDirectory "inventory-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
@@ -45,7 +45,7 @@ While ($true) {
             -Outfile $outfile `
             -Size $config.Size `
             -Verbose:$Verbose
-        } 
+        }
         Catch {
           Try {
             $job = Send-AwsCommand glacier describe-job `

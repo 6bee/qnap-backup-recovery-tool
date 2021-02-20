@@ -27,7 +27,7 @@ While ($true) {
     If ($files.Count -gt 0) {
       $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
-        $config = Read-JsonFile -Path $file -Verbose:$Verbose        
+        $config = Read-JsonFile -Path $file -Verbose:$Verbose
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
         $config.Vaults | ForEach-Object {
           $job = Send-AwsCommand glacier initiate-job `
@@ -37,7 +37,7 @@ While ($true) {
             "--job-parameters" "Type=inventory-retrieval" `
             -JsonResult `
             -Verbose:$Verbose
-          
+
           If (!$job) {
             Throw "Failed to initiate inventory-retrieval job for vault name '$($_.VaultName)'"
           }

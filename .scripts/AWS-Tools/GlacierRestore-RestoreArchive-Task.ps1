@@ -27,7 +27,7 @@ While ($True) {
       $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
-                
+
         $ArchivePath = $(ConvertFrom-Json -InputObject "`"$($config.ArchivePath)`"")
         "ArchivePath $ArchivePath" | Out-Log | Write-Host
 
@@ -46,7 +46,7 @@ While ($True) {
           "Copy archive $($ArchivePath)" | Out-Log | Write-Host
           Copy-Item -LiteralPath $config.SourceFile -Destination $targetFile -Force -Verbose:$Verbose
         }
-          
+
         Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {

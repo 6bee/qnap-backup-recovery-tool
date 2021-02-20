@@ -31,7 +31,7 @@ While ($true) {
       $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
-        
+
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
 
         $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
@@ -45,7 +45,7 @@ While ($true) {
             -Outfile $outfile `
             -Size $config.Size `
             -Verbose:$Verbose
-        } 
+        }
         Catch {
           Try {
             $job = Send-AwsCommand glacier describe-job `
@@ -58,7 +58,7 @@ While ($true) {
           } Catch { }
           Throw "Downloading archive failed (job#$($config.JobId)): DownloadResponse: '$result', JobStatus: '$job'"
         }
-          
+
         If (-Not (Test-Path -LiteralPath $outfile)) {
           Throw "Download archive task failed (jobid=$($config.JobId)) (archiveid=$($config.ArchiveId))"
         }
@@ -72,7 +72,7 @@ While ($true) {
         If ($hash -ne $config.SHA256Hash) {
           "SHA256 hash of downloaded archive file '$outfile' does not match expected hash $($config.SHA256Hash): $hash" | Out-Log -Level Warning | Write-Warning
         }
-        
+
         If ($NextTaskDirectory) {
           $nextTaskFile = Join-Path $NextTaskDirectory "decrypt-archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length 20)].json"
           "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
@@ -85,7 +85,7 @@ While ($true) {
             SourceFile = $outfile
           } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
-          
+
         Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {

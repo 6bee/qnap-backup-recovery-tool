@@ -12,19 +12,19 @@ If (-Not (Test-Path -LiteralPath Variable:openssl)) {
   $openssl = Join-Path $Tools "OpenSSL\bin\openssl.exe"
 }
 
-<# 
+<#
  .Synopsis
   Decrypt file
 
  .Description
   Decrypt file previously encrypted by QNAP backup program using OpenSSL
-  
+
  .Parameter SourceFilePath
   Source file
-  
+
  .Parameter DestinatonFilePath
   Destinatoin file
-  
+
  .Parameter Key
   Key
 
@@ -52,15 +52,15 @@ Function Invoke-DecryptFile {
 
   "Decrypted '$SourceFilePath' -> '$DestinatonFilePath'" | Out-Log | Write-Verbose
 }
-  
 
-<# 
+
+<#
  .Synopsis
   Encrypt string
 
  .Description
   Encrypt string using Windows Data Protection API (DPAPI)
-  
+
  .Parameter Plaintext
   Plaintext
 
@@ -75,16 +75,16 @@ Function ConvertTo-ProtectedString {
   $ciphertext = $($Plaintext | ConvertTo-SecureString -AsPlainText -Force | ConvertFrom-SecureString)
   $PSCmdlet.WriteObject($ciphertext)
 }
-  
-  
 
-<# 
+
+
+<#
  .Synopsis
   Decrypt string
 
  .Description
   Decrypt string using Windows Data Protection API (DPAPI)
-  
+
  .Parameter Ciphertext
   Ciphertext
 
@@ -102,6 +102,6 @@ Function ConvertFrom-ProtectedString {
     $plaintext = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
   } finally {
     [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
-  }  
+  }
   $PSCmdlet.WriteObject($plaintext)
 }

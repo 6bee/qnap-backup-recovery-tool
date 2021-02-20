@@ -1,7 +1,7 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 #
 # Generate-AWS-Configuration-Template.ps1
-# 
+#
 [CmdletBinding()]
 Param (
   [string]$File = "aws-job-configuration-template.json"

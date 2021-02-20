@@ -27,7 +27,7 @@ While ($true) {
     If ($files.Count -gt 0) {
       $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
-        $config = Read-JsonFile -Path $file -Verbose:$Verbose        
+        $config = Read-JsonFile -Path $file -Verbose:$Verbose
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
         $job = Send-AwsCommand glacier initiate-job `
           "--account-id=$($config.AccountId)" `
@@ -36,7 +36,7 @@ While ($true) {
           "--job-parameters" "Type=archive-retrieval,Tier=Bulk,ArchiveId=$($config.ArchiveId),Description=Retrieve archive on $(Get-Date)" `
           -JsonResult `
           -Verbose:$Verbose
-    
+
         If (!$job) {
           Throw "Failed to initiate archive-retrieval job for vault name '$($config.VaultName)': $($config.ArchiveId)"
         }

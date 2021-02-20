@@ -30,8 +30,8 @@ While ($true) {
     Get-ChildItem $ProcessingDirectory -Filter $pattern | ForEach-Object {
       $file = $_.FullName
       Try {
-        $config = Read-JsonFile -Path $file -Verbose:$Verbose        
-        Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose    
+        $config = Read-JsonFile -Path $file -Verbose:$Verbose
+        Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
         $job = Send-AwsCommand glacier describe-job `
           "--account-id=$($config.AccountId)" `
           "--region=$($config.Region)" `
@@ -39,7 +39,7 @@ While ($true) {
           "--job-id=$($config.JobId)" `
           -JsonResult `
           -Verbose:$Verbose
-    
+
         If($job.Completed) {
           If($job.StatusCode -eq "Succeeded") {
             $nextTaskFile = Join-Path $NextTaskDirectory "download-inventory-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"

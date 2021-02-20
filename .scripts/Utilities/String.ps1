@@ -1,12 +1,12 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Get a substring at the begining of the input string
 
  .Description
   Returns the first n characters of the input string
-  
+
  .Parameter InputString
   Input string
 
@@ -31,13 +31,13 @@ Function Get-StringStart {
 
 
 
-  <# 
+  <#
  .Synopsis
   Get a substring at the end of the input string
 
  .Description
   Returns the last n characters of the input string
-  
+
  .Parameter InputString
   Input string
 

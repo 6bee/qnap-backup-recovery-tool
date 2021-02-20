@@ -47,7 +47,7 @@ While ($true) {
             If ($size -ne $config.Size) {
               "Size for archive file given in vault inventory ($($config.Size) bytes) is different from archive download job description ($size bytes)" | Out-Log -Level Warning | Write-Warning
             }
-            
+
             $hash = $job.ArchiveSHA256TreeHash.ToLower()
             If ($hash -ne $config.SHA256Hash) {
               "SHA256 hash for archive file given in vault inventory ($($config.SHA256Hash)) is different from archive download job description ($hash)" | Out-Log -Level Warning | Write-Warning
@@ -63,7 +63,7 @@ While ($true) {
             Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
           } Else {
             Throw "Polling archive job failed (jobid=$($config.JobId)): $job"
-          } 
+          }
         } ElseIf(-Not $job) {
           "Polling archive job returned no result (jobid=$($config.JobId))" | Out-Log -Level Warning | Write-Warning
         }

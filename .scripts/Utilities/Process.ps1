@@ -1,12 +1,12 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Start random sleep
 
  .Description
   Puts the current session in sleep for an random number of milliseconds
-  
+
  .Parameter Minimum
   Minimum
 

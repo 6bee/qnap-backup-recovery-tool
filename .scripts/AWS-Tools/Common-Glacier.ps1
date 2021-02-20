@@ -13,7 +13,7 @@ $GlacierDecryptArchive = Join-Path $Tasks "decrypt-archive"
 $GlacierDecompressArchive = Join-Path $Tasks "decompress-archive"
 $GlacierRestoreArchive = Join-Path $Tasks "restore-archive"
 
-<# 
+<#
  .Synopsis
   Get AWS Glacier Vault Jobs
 
@@ -47,7 +47,7 @@ Function Get-AwsGlacierJobs {
 
 
 
-<# 
+<#
  .Synopsis
   Get Job Output
 
@@ -87,7 +87,7 @@ Function Get-JobOutput {
 
   $Verbose = $PSCmdlet.MyInvocation.BoundParameters["Verbose"].IsPresent
   $PartSize = $PartSizeMb * 1024 * 1024
-  
+
   If ((-Not $Size) -Or ($PartSize -le 0) -Or ($PartSize -ge $Size)) {
     $result = Send-AwsCommand glacier get-job-output `
       "--account-id=$($AccountId)" `
@@ -97,7 +97,7 @@ Function Get-JobOutput {
       $Outfile `
       -JsonResult `
       -Verbose:$Verbose
-      
+
     If ($result.status -ne 200) {
       Throw "Download failed (jobid=$JobId): $result"
     }
@@ -110,7 +110,7 @@ Function Get-JobOutput {
       If (($Size - $rangeTo - 1) -lt ($PartSize * 0.05)) {
         $rangeTo = $Size-1
       }
-      
+
       $result = Send-AwsCommand glacier get-job-output `
         "--account-id=$($AccountId)" `
         "--region=$($Region)" `
@@ -134,7 +134,7 @@ Function Get-JobOutput {
     }
 
     0..$n | ForEach-Object {
-      Get-Content -LiteralPath "$Outfile.part$_" -Encoding Byte -ReadCount 512 | Add-Content -LiteralPath $Outfile -Encoding Byte 
+      Get-Content -LiteralPath "$Outfile.part$_" -Encoding Byte -ReadCount 512 | Add-Content -LiteralPath $Outfile -Encoding Byte
     }
 
     $size = (Get-Item -LiteralPath $Outfile).Length
@@ -148,4 +148,3 @@ Function Get-JobOutput {
 
   $PSCmdlet.WriteObject($result)
 }
-

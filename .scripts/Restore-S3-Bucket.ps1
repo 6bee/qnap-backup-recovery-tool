@@ -1,7 +1,7 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 #
 # Restore-S3-Bucket.ps1
-# 
+#
 [CmdletBinding()]
 param (
   [string]$ParameterFile = $( Read-Host "Input parameter file path, please" )

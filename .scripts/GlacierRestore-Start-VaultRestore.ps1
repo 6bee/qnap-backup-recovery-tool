@@ -1,7 +1,7 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 #
 # GlacierRestore-Start-VaultRestore.ps1
-# 
+#
 [CmdletBinding()]
 Param (
   [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)]

@@ -31,7 +31,7 @@ While ($True) {
       $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
-        
+
         $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
 
         Invoke-DecryptFile `
@@ -39,14 +39,14 @@ While ($True) {
           -DestinatonFilePath $outfile `
           -Key $(ConvertFrom-ProtectedString $config.ProtectedDecryptionPassword) `
           -Verbose:$Verbose
-        
+
         If (-Not (Test-Path -LiteralPath $outfile)) {
           Throw "Decryption task failed for file '$($config.SourceFile)' (archiveid=$($config.ArchiveId))"
         }
 
         If ($NextTaskDirectory) {
           $nextTaskFile = Join-Path $NextTaskDirectory "decompress-archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].json"
-          "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host 
+          "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
           @{
             ArchiveId = $config.ArchiveId
             ArchivePath = $config.ArchivePath
@@ -55,7 +55,7 @@ While ($True) {
             SourceFile = $outfile
           } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
-          
+
         Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {

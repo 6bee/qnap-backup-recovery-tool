@@ -1,12 +1,12 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 
-<# 
+<#
  .Synopsis
   Coalesce
 
  .Description
   Returns the value if it's not null, else returns the defaul value
-  
+
  .Parameter Value
   The value the be returned if not null
 
@@ -26,26 +26,26 @@ Function Get-Coalesce {
     $Result = If($Value) { $Value } Else { $Default }
     $PSCmdlet.WriteObject($Result)
   }
-  
+
   #New-Alias "??" Coalesce
-  
-  
-  <# 
+
+
+  <#
    .Synopsis
     IfTrue
-  
+
    .Description
-    Returns one or the other value based on whether the condition evaluates to true 
-    
+    Returns one or the other value based on whether the condition evaluates to true
+
    .Parameter Test
     The condition to be evaluated
-    
+
    .Parameter IfTrue
     The value to be returned if the condition evaluates to true
-  
+
    .Parameter IfFalse
     The value to be returned if the condition evaluates to false
-  
+
    .Example
     Get-IfTrue $Test $Foo $Bar
   #>
@@ -61,6 +61,5 @@ Function Get-Coalesce {
     $Result = If($Test) { $IfTrue } Else { $IfFalse }
     $PSCmdlet.WriteObject($Result)
   }
-  
+
   #New-Alias "?:" IfTrue
-  

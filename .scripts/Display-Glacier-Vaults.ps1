@@ -1,7 +1,7 @@
 # Copyright (c) Christof Senn. All rights reserved. See license.txt in the project root for license information.
 #
 # Display-Glacier-Vaults
-# 
+#
 [CmdletBinding()]
 Param (
   [string]$ConfigurationFile = $( Read-Host "Input Account Info File Path, please" )

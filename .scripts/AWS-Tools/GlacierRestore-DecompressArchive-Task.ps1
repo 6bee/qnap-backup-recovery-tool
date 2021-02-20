@@ -34,7 +34,7 @@ While ($True) {
       $file = $(Move-ItemToDirectory -LiteralPath $files[0].FullName -Destination $ProcessingDirectory -Force -PassThru -Verbose:$Verbose).FullName
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
-        
+
         If ($config.ArchivePath -like "*$ComporessedFileExt") {
           "Decompress archive $($config.ArchivePath)" | Out-Log | Write-Host
           $outfile = Invoke-DecompressFile `
@@ -48,7 +48,7 @@ While ($True) {
             Remove-Item -LiteralPath $config.SourceFile -Verbose:$Verbose
           }
         } ElseIf ($RemoveSource) {
-          "Move archive $($config.ArchivePath)" | Out-Log | Write-Host 
+          "Move archive $($config.ArchivePath)" | Out-Log | Write-Host
           $outfile = $(Move-ItemToDirectory -LiteralPath $config.SourceFile -Destination $DataDirectory -PassThru -Verbose:$Verbose).FullName
         } Else {
           "Copy archive $($config.ArchivePath)" | Out-Log | Write-Host
@@ -74,7 +74,7 @@ While ($True) {
             SourceFile = $outfile
           } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
-          
+
         Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
       }
       Catch {
