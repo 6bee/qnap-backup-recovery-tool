@@ -46,7 +46,7 @@ While ($true) {
         $config `
           | Get-ShallowCopy -ExcludeProperty Predecessor `
           | Add-Member JobId $job.jobId -PassThru -Verbose:$Verbose `
-          | Add-Member Predecessor [System.IO.Path]::GetFileName($file) -PassThru -Verbose:$Verbose `
+          | Add-Member Predecessor $([System.IO.Path]::GetFileName($file)) -PassThru -Verbose:$Verbose `
           | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
 
         Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose

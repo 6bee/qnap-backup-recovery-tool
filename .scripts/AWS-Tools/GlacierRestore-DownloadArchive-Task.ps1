@@ -83,7 +83,7 @@ While ($true) {
             RestoreDirectory = $config.RestoreDirectory
             VaultName = $config.VaultName
             SourceFile = $outfile
-            Predecessor = [System.IO.Path]::GetFileName($file)
+            Predecessor = $([System.IO.Path]::GetFileName($file))
           } | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
 

@@ -74,7 +74,7 @@ While ($true) {
           $config `
             | Get-ShallowCopy -ExcludeProperty Size, Predecessor `
             | Add-Member InventoryFile $outfile -PassThru -Verbose:$Verbose `
-            | Add-Member Predecessor [System.IO.Path]::GetFileName($file) -PassThru -Verbose:$Verbose `
+            | Add-Member Predecessor $([System.IO.Path]::GetFileName($file)) -PassThru -Verbose:$Verbose `
             | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
 

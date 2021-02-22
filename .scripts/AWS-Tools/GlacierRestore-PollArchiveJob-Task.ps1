@@ -59,7 +59,7 @@ While ($true) {
               | Get-ShallowCopy -ExcludeProperty Size, SHA256Hash, Predecessor `
               | Add-Member Size $size -PassThru -Verbose:$Verbose `
               | Add-Member SHA256Hash $hash -PassThru -Verbose:$Verbose `
-              | Add-Member Predecessor [System.IO.Path]::GetFileName($file) -PassThru -Verbose:$Verbose `
+              | Add-Member Predecessor $([System.IO.Path]::GetFileName($file)) -PassThru -Verbose:$Verbose `
               | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
           } Else {
