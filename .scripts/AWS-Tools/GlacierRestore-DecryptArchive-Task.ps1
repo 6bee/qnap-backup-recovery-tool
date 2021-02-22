@@ -34,14 +34,19 @@ While ($True) {
 
         $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
 
-        Invoke-DecryptFile `
-          -SourceFilePath $config.SourceFile `
-          -DestinatonFilePath $outfile `
-          -Key $(ConvertFrom-ProtectedString $config.ProtectedDecryptionPassword) `
-          -Verbose:$Verbose
+        If ([System.IO.FileInfo]::New($config.SourceFile).Length -gt 0) {
+          Invoke-DecryptFile `
+            -SourceFilePath $config.SourceFile `
+            -DestinatonFilePath $outfile `
+            -Key $(ConvertFrom-ProtectedString $config.ProtectedDecryptionPassword) `
+            -Verbose:$Verbose
 
-        If (-Not (Test-Path -LiteralPath $outfile)) {
-          Throw "Decryption task failed for file '$($config.SourceFile)' (archiveid=$($config.ArchiveId))"
+          If (-Not (Test-Path -LiteralPath $outfile)) {
+            Throw "Decryption task failed for file '$($config.SourceFile)' (archiveid=$($config.ArchiveId))"
+          }
+        } Else {
+          "Skip decrption for empty archive $($config.SourceFile)" | Out-Log -Level Information | Write-Host
+          Copy-Item -LiteralPath $config.SourceFile -Destination $outfile -Force -Verbose:$Verbose
         }
 
         If ($NextTaskDirectory) {
