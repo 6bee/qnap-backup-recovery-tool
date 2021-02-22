@@ -48,6 +48,7 @@ While ($true) {
             | Get-ShallowCopy -ExcludeProperty Vaults `
             | Add-Member VaultName $_.VaultName -PassThru -Verbose:$Verbose `
             | Add-Member JobId $job.jobId -PassThru -Verbose:$Verbose `
+            | Add-Member Predecessor [System.IO.Path]::GetFileName($file) -PassThru -Verbose:$Verbose `
             | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
 

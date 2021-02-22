@@ -56,9 +56,10 @@ While ($true) {
             $nextTaskFile = Join-Path $NextTaskDirectory "download-archive-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
             $config `
-              | Get-ShallowCopy -ExcludeProperty Size, SHA256Hash `
+              | Get-ShallowCopy -ExcludeProperty Size, SHA256Hash, Predecessor `
               | Add-Member Size $size -PassThru -Verbose:$Verbose `
               | Add-Member SHA256Hash $hash -PassThru -Verbose:$Verbose `
+              | Add-Member Predecessor [System.IO.Path]::GetFileName($file) -PassThru -Verbose:$Verbose `
               | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
           } Else {

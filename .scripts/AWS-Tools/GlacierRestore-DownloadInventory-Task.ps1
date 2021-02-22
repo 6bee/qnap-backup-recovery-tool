@@ -72,8 +72,9 @@ While ($true) {
           $nextTaskFile = Join-Path $NextTaskDirectory "generate-archive-requests-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
           "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
           $config `
-            | Get-ShallowCopy -ExcludeProperty Size `
+            | Get-ShallowCopy -ExcludeProperty Size, Predecessor `
             | Add-Member InventoryFile $outfile -PassThru -Verbose:$Verbose `
+            | Add-Member Predecessor [System.IO.Path]::GetFileName($file) -PassThru -Verbose:$Verbose `
             | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
         }
 

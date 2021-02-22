@@ -45,8 +45,9 @@ While ($true) {
             $nextTaskFile = Join-Path $NextTaskDirectory "download-inventory-[job#$(Get-StringStart -InputString $config.JobId -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
             $config `
-              | Get-ShallowCopy `
+              | Get-ShallowCopy -ExcludeProperty Predecessor `
               | Add-Member Size $job.InventorySizeInBytes -PassThru -Verbose:$Verbose `
+              | Add-Member Predecessor [System.IO.Path]::GetFileName($file) -PassThru -Verbose:$Verbose `
               | Write-JsonFile -Path $nextTaskFile -Verbose:$Verbose
             Move-ItemToDirectory -LiteralPath $file -Destination $SucceessDirectory -Force -Verbose:$Verbose
           } Else {
