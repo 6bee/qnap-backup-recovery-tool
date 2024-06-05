@@ -18,7 +18,7 @@ Write-Host "Clear-Glacier-Vault"
 Write-Host "*******************"
 Write-Host "Account Id: '$($configuration.AccountId)'"
 Write-Host "Region:     '$($configuration.Region)'"
-Write-Host "Vaults:     '$(($configuration.Vaults | % {$_.VaulName}) -join ", ")'"
+Write-Host "Vaults:     '$(($configuration.Vaults | % {$_.VaultName}) -join ", ")'"
 Write-Host ""
 Write-Host "Hit Enter to continue..."
 
