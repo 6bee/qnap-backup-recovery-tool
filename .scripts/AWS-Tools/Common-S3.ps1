@@ -107,5 +107,5 @@ Function Invoke-AwsS3BucketDownload {
 
   Write-Verbose "Invoke-AwsS3BucketDownload S3Uri: $S3Uri, TargetDirectory: $TargetDirectory"
 
-  Send-AwsCommand s3 sync $S3Uri $TargetDirectory -Verbose:$Verbose
+  Send-AwsCommand s3 sync "$S3Uri" "$TargetDirectory" -Verbose:$Verbose
 }

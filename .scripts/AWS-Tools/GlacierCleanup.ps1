@@ -24,7 +24,7 @@ Function Get-AwsGlacierVaults {
 
     Write-Verbose "Get-AwsGlacierVaults AccountId: $AccountId, Region: $Region"
 
-    $result = Send-AwsCommand glacier list-vaults --account-id $AccountId --region $Region -JsonResult
+    $result = Send-AwsCommand glacier list-vaults --account-id "$AccountId" --region "$Region" -JsonResult
     $PSCmdlet.WriteObject($result)	
   }
 
@@ -65,7 +65,7 @@ Function Get-AwsGlacierVaults {
     }
 
     If (![System.IO.Path]::IsPathRooted($WorkingDirectory)){
-      $WorkingDirectory = [System.IO.Path]::GetFullPath((Join-Path (pwd) $WorkingDirectory))
+      $WorkingDirectory = [System.IO.Path]::GetFullPath((Join-Path (Get-Location) $WorkingDirectory))
     }
 
     If (-Not (Test-Path -LiteralPath $WorkingDirectory)){
@@ -75,7 +75,7 @@ Function Get-AwsGlacierVaults {
 
     ### request inventory download
     Write-Host "Requesting inventory"
-    $job = Send-AwsCommand glacier initiate-job --account-id $AccountId --region $Region --vault-name $VaultName --job-parameters Type=inventory-retrieval -JsonResult
+    $job = Send-AwsCommand glacier initiate-job --account-id "$AccountId" --region "$Region" --vault-name "$VaultName" --job-parameters "Type=inventory-retrieval" -JsonResult
     If (!$job) {
       $errmsg = "Failed to initiate job for inventory retrieval"
       Write-Error $errmsg
@@ -88,7 +88,7 @@ Function Get-AwsGlacierVaults {
     ### wait for inventory be ready for download
     Write-Host "Polling inventory"
     Do {
-      $jobStatus = Send-AwsCommand glacier describe-job --account-id $AccountId --region $Region --vault-name "$VaultName" --job-id $jobId -JsonResult
+      $jobStatus = Send-AwsCommand glacier describe-job --account-id "$AccountId" --region "$Region" --vault-name "$VaultName" --job-id "$jobId" -JsonResult
       If (!$jobStatus){
         Write-Host "Polling failure for job $($job.jobId)"
       }
@@ -110,7 +110,7 @@ Function Get-AwsGlacierVaults {
     ### download inventory
     Write-Host "Downloading inventory"
     $inventoryFilePath = Join-Path $WorkingDirectory "inventory-$jobId.json"
-    $result = Send-AwsCommand glacier get-job-output --account-id $AccountId --region $Region --vault-name "$VaultName" --job-id $jobId "$inventoryFilePath" -JsonResult
+    $result = Send-AwsCommand glacier get-job-output --account-id "$AccountId" --region "$Region" --vault-name "$VaultName" --job-id "$jobId" "$inventoryFilePath" -JsonResult
     If ($result.status -ne 200){
       Write-Host "$status <> 200"
       Throw "Downloading inventory failed: $(ConvertFrom-Json -InputObject $(-join $result))"
@@ -147,14 +147,14 @@ Function Get-AwsGlacierVaults {
 
     Write-Verbose "Clear-AwsGlacierVault AccountId: $AccountId, Region: $Region, Vault: $VaultName"
 
-    $InventoryFilePath = Get-AwsGlacierVaultInventory $AccountId $Region $VaultName (pwd)
+    $InventoryFilePath = Get-AwsGlacierVaultInventory "$AccountId" "$Region" "$VaultName" (Get-Location)
     $InventoryJson = Get-Content $InventoryFilePath
 
     ConvertFrom-Json -InputObject $InventoryJson |
       Select-Object -ExpandProperty ArchiveList |
       ForEach-Object {
         Write-Host "Delete archive $($_.ArchiveId)"
-        Send-AwsCommand glacier delete-archive --account-id $AccountId --region $Region --vault-name $VaultName --archive-id "$($_.ArchiveId)" -JsonResult
+        Send-AwsCommand glacier delete-archive --account-id "$AccountId" --region "$Region" --vault-name "$VaultName" --archive-id "$($_.ArchiveId)" -JsonResult
       }
   }
 
@@ -187,6 +187,6 @@ Function Get-AwsGlacierVaults {
 
     Write-Verbose "Remove-AwsGlacierVault AccountId: $AccountId, Region: $Region, Vault: $VaultName"
 
-    $result = Send-AwsCommand glacier delete-vault --account-id $AccountId --region $Region --vault-name $VaultName -JsonResult
+    $result = Send-AwsCommand glacier delete-vault --account-id "$AccountId" --region "$Region" --vault-name "$VaultName" -JsonResult
     $PSCmdlet.WriteObject($result)
   }

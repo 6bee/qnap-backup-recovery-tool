@@ -41,7 +41,7 @@ Function Get-AwsGlacierJobs {
 
   Write-Verbose "Get-AwsGlacierJobs AccontId: $AccountId, Region: $Region, Vault: $VaultName"
 
-  $result = Send-AwsCommand glacier list-jobs --account-id $AccountId --region $Region --vault-name $VaultName -JsonResult
+  $result = Send-AwsCommand glacier list-jobs --account-id "$AccountId" --region "$Region" --vault-name "$VaultName" -JsonResult
   $PSCmdlet.WriteObject($result)
 }
 
@@ -90,11 +90,11 @@ Function Get-JobOutput {
 
   If ((-Not $Size) -Or ($PartSize -le 0) -Or ($PartSize -ge $Size)) {
     $result = Send-AwsCommand glacier get-job-output `
-      "--account-id=$($AccountId)" `
-      "--region=$($Region)" `
-      "--vault-name=$($VaultName)" `
-      "--job-id=$($JobId)" `
-      $Outfile `
+      "--account-id=$AccountId" `
+      "--region=$Region" `
+      "--vault-name=$VaultName" `
+      "--job-id=$JobId" `
+      "$Outfile" `
       -JsonResult `
       -Verbose:$Verbose
 
@@ -112,10 +112,10 @@ Function Get-JobOutput {
       }
 
       $result = Send-AwsCommand glacier get-job-output `
-        "--account-id=$($AccountId)" `
-        "--region=$($Region)" `
-        "--vault-name=$($VaultName)" `
-        "--job-id=$($JobId)" `
+        "--account-id=$AccountId" `
+        "--region=$Region" `
+        "--vault-name=$VaultName" `
+        "--job-id=$JobId" `
         "--range=bytes=$rangeFrom-$rangeTo" `
         "$Outfile.part$n" `
         -JsonResult `
