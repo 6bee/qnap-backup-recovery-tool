@@ -76,12 +76,12 @@ While ($true) {
             } } `
           | Where-Object { $_.Type -eq 'file' } `
           | ForEach-Object {
-            $nextTaskFile = Join-Path $NextTaskDirectory "request-archive-[obj#$(Get-StringStart -InputString $_.ArchiveId -Length $env:MaxIdSize)].json"
+            $nextTaskFile = Join-Path $NextTaskDirectory "request-archive-[obj#$(Get-StringStart -InputString "$($_.ArchiveId)" -Length $env:MaxIdSize)].json"
             "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
             $config `
               | Get-ShallowCopy -ExcludeProperty JobId, InventoryFile, Predecessor `
               | Add-Member ArchivePath $_.Path -PassThru -Verbose:$Verbose `
-              | Add-Member ArchiveId $_.ArchiveId -PassThru -Verbose:$Verbose `
+              | Add-Member ArchiveId "$($_.ArchiveId)" -PassThru -Verbose:$Verbose `
               | Add-Member Size $_.Size -PassThru -Verbose:$Verbose `
               | Add-Member SHA256Hash $_.SHA256TreeHash -PassThru -Verbose:$Verbose `
               | Add-Member Predecessor $([System.IO.Path]::GetFileName($file)) -PassThru -Verbose:$Verbose `

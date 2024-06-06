@@ -60,7 +60,7 @@ While ($True) {
         }
 
         If ($NextTaskDirectory) {
-          $nextTaskFile = Join-Path $NextTaskDirectory "restore-archive-[$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].json"
+          $nextTaskFile = Join-Path $NextTaskDirectory "restore-archive-[$(Get-StringStart -InputString "$($config.ArchiveId)" -Length $env:MaxIdSize)].json"
           "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
           $archivepath = Get-IfTrue `
             -Test $($config.ArchivePath -like "*$ComporessedFileExt") `

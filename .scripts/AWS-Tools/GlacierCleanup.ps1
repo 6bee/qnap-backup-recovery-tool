@@ -154,7 +154,7 @@ Function Get-AwsGlacierVaults {
       Select-Object -ExpandProperty ArchiveList |
       ForEach-Object {
         Write-Host "Delete archive $($_.ArchiveId)"
-        Send-AwsCommand glacier delete-archive --account-id $AccountId --region $Region --vault-name $VaultName --archive-id $_.ArchiveId -JsonResult
+        Send-AwsCommand glacier delete-archive --account-id $AccountId --region $Region --vault-name $VaultName --archive-id "$($_.ArchiveId)" -JsonResult
       }
   }
 

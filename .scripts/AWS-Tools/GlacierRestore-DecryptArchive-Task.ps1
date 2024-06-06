@@ -32,7 +32,7 @@ While ($True) {
       Try {
         $config = Read-JsonFile -Path $file -Verbose:$Verbose
 
-        $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
+        $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString "$($config.ArchiveId)" -Length $env:MaxIdSize)].dat"
 
         If ([System.IO.FileInfo]::New($config.SourceFile).Length -gt 0) {
           Invoke-DecryptFile `
@@ -50,7 +50,7 @@ While ($True) {
         }
 
         If ($NextTaskDirectory) {
-          $nextTaskFile = Join-Path $NextTaskDirectory "decompress-archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].json"
+          $nextTaskFile = Join-Path $NextTaskDirectory "decompress-archive-[obj#$(Get-StringStart -InputString "$($config.ArchiveId)" -Length $env:MaxIdSize)].json"
           "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
           @{
             ArchiveId = $config.ArchiveId

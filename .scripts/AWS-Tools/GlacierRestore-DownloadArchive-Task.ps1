@@ -34,7 +34,7 @@ While ($true) {
 
         Set-AwsCredentials $config.AccessKey $(ConvertFrom-ProtectedString $config.ProtectedSecretKey) -Verbose:$Verbose
 
-        $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length $env:MaxIdSize)].dat"
+        $outfile = Join-Path $DataDirectory "archive-[obj#$(Get-StringStart -InputString "$($config.ArchiveId)" -Length $env:MaxIdSize)].dat"
 
         Try {
           $result = Get-JobOutput `
@@ -74,7 +74,7 @@ While ($true) {
         }
 
         If ($NextTaskDirectory) {
-          $nextTaskFile = Join-Path $NextTaskDirectory "decrypt-archive-[obj#$(Get-StringStart -InputString $config.ArchiveId -Length 20)].json"
+          $nextTaskFile = Join-Path $NextTaskDirectory "decrypt-archive-[obj#$(Get-StringStart -InputString "$($config.ArchiveId)" -Length 20)].json"
           "Creating Task File: $nextTaskFile" | Out-Log -Level Information | Write-Host
           @{
             ArchiveId = $config.ArchiveId
