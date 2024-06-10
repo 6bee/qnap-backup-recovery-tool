@@ -41,7 +41,11 @@ Function Get-AwsGlacierJobs {
 
   Write-Verbose "Get-AwsGlacierJobs AccontId: $AccountId, Region: $Region, Vault: $VaultName"
 
-  $result = Send-AwsCommand glacier list-jobs --account-id "$AccountId" --region "$Region" --vault-name "$VaultName" -JsonResult
+  $result = Send-AwsCommand glacier list-jobs `
+    "--account-id=$AccountId" `
+    "--region=$Region" `
+    "--vault-name=$VaultName" `
+    -JsonResult
   $PSCmdlet.WriteObject($result)
 }
 
